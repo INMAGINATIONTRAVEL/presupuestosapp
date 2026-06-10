@@ -6,18 +6,19 @@ import { cookies } from 'next/headers'
 import type { PresupuestoCompleto } from '@/types'
 
 interface Props {
-  params: { token: string }
-  searchParams: { acceso?: string }
+  params: Promise<{ token: string }>
+  searchParams: Promise<{ acceso?: string }>
 }
 
-export default async function PresupuestoPage({ params, searchParams }: Props) {
+export default async function PresupuestoPage({ params }: Props) {
+  const { token } = await params
   const supabase = await createClient()
 
   // Buscar el presupuesto por token
   const { data: presupuesto, error } = await supabase
     .from('presupuestos')
     .select('*')
-    .eq('token', params.token)
+    .eq('token', token)
     .single()
 
   if (error || !presupuesto) return notFound()
@@ -37,16 +38,16 @@ export default async function PresupuestoPage({ params, searchParams }: Props) {
 
   // Verificar si el cliente ya se autenticó (cookie de sesión)
   const cookieStore = await cookies()
-  const sesionToken = cookieStore.get(`sesion_${params.token}`)?.value
+  const sesionToken = cookieStore.get(`sesion_${token}`)?.value
   const autenticado = sesionToken === presupuesto.cliente_email
 
   // Si no está autenticado, mostrar email gate
   if (!autenticado) {
-    return <EmailGate token={params.token} emailCliente={presupuesto.cliente_email} />
+    return <EmailGate token={token} emailCliente={presupuesto.cliente_email} />
   }
 
   // Marcar como visto
-  await supabase.rpc('marcar_visto', { p_token: params.token })
+  await supabase.rpc('marcar_visto', { p_token: token })
 
   // Cargar extras del presupuesto
   const { data: extras } = await supabase

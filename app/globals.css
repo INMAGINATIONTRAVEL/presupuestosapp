@@ -30,6 +30,32 @@ body {
   font-family: var(--font-playfair), 'Playfair Display', serif;
 }
 
+/* Inputs admin */
+.input-admin {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: #1C1C2E;
+  background: white;
+  transition: border-color 0.15s;
+  font-family: var(--font-poppins), sans-serif;
+}
+.input-admin:focus {
+  outline: none;
+  border-color: #E8445A;
+}
+.label-admin {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.375rem;
+}
+
 /* Scroll suave */
 html {
   scroll-behavior: smooth;
