@@ -20,6 +20,11 @@ export default function HeroOferta({ nombre, numero, destino }: Props) {
         <div className="absolute bottom-6 right-8 text-white text-xl opacity-30 animate-pulse delay-500">✦</div>
       </div>
 
+      {/* Logo */}
+      <div className="mb-5">
+        <img src="/inmaginationtravel.svg" alt="Inmagination Travel" className="h-12 w-auto opacity-90" />
+      </div>
+
       {/* Badge número */}
       <div className="border border-white/30 rounded-full px-5 py-1.5 mb-5 backdrop-blur-sm">
         <span className="text-white/80 text-xs font-medium uppercase tracking-widest">

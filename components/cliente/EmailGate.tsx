@@ -43,9 +43,9 @@ export default function EmailGate({ token }: Props) {
       style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #2d1b4e 60%, #1C1C2E 100%)' }}>
 
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm">
-        {/* Icono */}
+        {/* Logo */}
         <div className="flex justify-center mb-6">
-          <div className="text-5xl">✨</div>
+          <img src="/inmaginationtravel.svg" alt="Inmagination Travel" className="h-16 w-auto" />
         </div>
 
         {/* Título */}
