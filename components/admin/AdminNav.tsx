@@ -25,11 +25,8 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
     <nav className="bg-[#1C1C2E] border-b border-white/10">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-3">
-          <span className="text-[#F5A623] text-lg">✨</span>
-          <span className="font-playfair font-bold text-white text-sm hidden sm:block">
-            Inmagination Travel
-          </span>
+        <div className="flex items-center">
+          <img src="/logo letra blanca.png" alt="Inmagination Travel" className="h-8 w-auto" />
         </div>
 
         {/* Links */}
