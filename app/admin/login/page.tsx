@@ -7,7 +7,7 @@ export default function LoginPage() {
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <img
-            src="/logo letra blanca.svg"
+            src="/logo letra blanca.png"
             alt="Inmagination Travel"
             className="h-48 w-auto mx-auto mb-3"
           />

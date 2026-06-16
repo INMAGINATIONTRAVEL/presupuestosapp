@@ -45,7 +45,7 @@ export default function EmailGate({ token }: Props) {
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img src="/logo letra azul.svg" alt="Inmagination Travel" className="h-16 w-auto" />
+          <img src="/logo letra azul.png" alt="Inmagination Travel" className="h-16 w-auto" />
         </div>
 
         {/* Título */}
