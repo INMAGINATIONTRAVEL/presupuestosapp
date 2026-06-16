@@ -9,7 +9,7 @@ export default function LoginPage() {
           <img
             src="/logo letra blanca.svg"
             alt="Inmagination Travel"
-            className="h-20 w-auto mx-auto mb-3"
+            className="h-32 w-auto mx-auto mb-3"
           />
           <p className="text-gray-400 text-sm">Panel de administración</p>
         </div>
