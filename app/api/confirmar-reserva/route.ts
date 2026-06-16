@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { resend, EMAIL_FROM, EMAIL_AGENCIA } from '@/lib/resend'
+import { emailAgenteHTML } from '@/lib/emails/agente'
+
+function formatPrecio(n: number) {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(n)
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
@@ -11,10 +17,9 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createClient()
 
-  // Verificar que el token corresponde al presupuesto
   const { data: presupuesto } = await supabase
     .from('presupuestos')
-    .select('id, estado')
+    .select('*')
     .eq('id', presupuesto_id)
     .eq('token', token)
     .single()
@@ -47,11 +52,51 @@ export async function POST(req: NextRequest) {
     telefono_reserva: telefono_reserva || null,
   })
 
-  // Actualizar estado del presupuesto
+  // Actualizar estado
   await supabase
     .from('presupuestos')
     .update({ estado: 'confirmado' })
     .eq('id', presupuesto_id)
+
+  // Enviar email al agente si hay email configurado
+  if (EMAIL_AGENCIA) {
+    const { data: extrasDB } = await supabase
+      .from('presupuesto_extras')
+      .select('precio_personalizado, extra:extras_catalogo(nombre)')
+      .eq('presupuesto_id', presupuesto_id)
+      .in('id', extras_seleccionados ?? [])
+
+    const extrasSeleccionados = (extrasDB ?? []).map((e: any) => ({
+      nombre: e.extra?.nombre ?? '',
+      precio: formatPrecio(e.precio_personalizado),
+    }))
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const linkAdmin = `${baseUrl}/admin/presupuesto/${presupuesto_id}`
+
+    const html = emailAgenteHTML({
+      clienteNombre: presupuesto.cliente_nombre,
+      clienteEmail: presupuesto.cliente_email,
+      clienteTelefono: presupuesto.cliente_telefono,
+      destino: presupuesto.destino,
+      hotel: presupuesto.hotel,
+      fechaInicio: presupuesto.fecha_inicio,
+      fechaFin: presupuesto.fecha_fin,
+      precioTotal: formatPrecio(presupuesto.precio_total),
+      extrasSeleccionados,
+      pagoFlexible: pago_flexible ?? false,
+      notasCliente: notas_cliente,
+      telefonoReserva: telefono_reserva,
+      linkAdmin,
+    })
+
+    await resend.emails.send({
+      from: EMAIL_FROM,
+      to: EMAIL_AGENCIA,
+      subject: `🎉 Nueva confirmación de reserva — ${presupuesto.cliente_nombre}`,
+      html,
+    })
+  }
 
   return NextResponse.json({ ok: true })
 }

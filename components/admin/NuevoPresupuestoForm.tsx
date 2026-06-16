@@ -143,6 +143,18 @@ export default function NuevoPresupuestoForm({ extrasCatalogo }: { extrasCatalog
         )
       }
 
+      // Si es "enviado", mandar email al cliente
+      if (estado === 'enviado') {
+        const res = await fetch('/api/enviar-presupuesto', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ presupuesto_id: presupuesto.id }),
+        })
+        if (!res.ok) {
+          console.error('Error enviando email al cliente')
+        }
+      }
+
       router.push(`/admin/presupuesto/${presupuesto.id}`)
     } catch (err: any) {
       setError(err.message || 'Error al guardar')

@@ -4,6 +4,7 @@ import { formatPrecio, formatFecha, calcularNoches } from '@/lib/utils'
 import Link from 'next/link'
 import CopiarLinkBtn from '@/components/admin/CopiarLinkBtn'
 import CambiarEstadoBtn from '@/components/admin/CambiarEstadoBtn'
+import ReenviarEmailBtn from '@/components/admin/ReenviarEmailBtn'
 
 const ESTADO_BADGE: Record<string, { label: string; color: string }> = {
   borrador:   { label: 'Borrador',   color: 'bg-gray-100 text-gray-600' },
@@ -64,7 +65,10 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
           </h1>
           <p className="text-gray-500 text-sm">{p.cliente_email}</p>
         </div>
-        <CambiarEstadoBtn presupuestoId={p.id} estadoActual={p.estado} />
+        <div className="flex items-center gap-2">
+          <ReenviarEmailBtn presupuestoId={p.id} />
+          <CambiarEstadoBtn presupuestoId={p.id} estadoActual={p.estado} />
+        </div>
       </div>
 
       {/* Link privado */}

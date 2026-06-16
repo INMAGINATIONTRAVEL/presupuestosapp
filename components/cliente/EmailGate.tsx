@@ -39,7 +39,9 @@ export default function EmailGate({ token }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4"
+      style={{ background: 'linear-gradient(135deg, #1C1C2E 0%, #2d1b4e 60%, #1C1C2E 100%)' }}>
+
       <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm">
         {/* Icono */}
         <div className="flex justify-center mb-6">
@@ -47,7 +49,7 @@ export default function EmailGate({ token }: Props) {
         </div>
 
         {/* Título */}
-        <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
+        <h1 className="font-playfair text-2xl font-bold text-center text-[#1C1C2E] mb-2">
           Presupuesto Privado
         </h1>
         <p className="text-gray-500 text-center text-sm mb-8 leading-relaxed">
@@ -66,18 +68,19 @@ export default function EmailGate({ token }: Props) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@email.com"
               required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#E8445A] focus:border-transparent text-gray-900 placeholder-gray-400"
             />
           </div>
 
           {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
+            <p className="text-[#E8445A] text-sm text-center">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-bold py-4 rounded-2xl transition-colors uppercase tracking-wide"
+            className="w-full disabled:opacity-50 text-white font-bold py-4 rounded-2xl transition-colors uppercase tracking-wide"
+            style={{ background: 'linear-gradient(135deg, #E8445A, #C2185B)' }}
           >
             {loading ? 'Verificando...' : 'Ver mi oferta'}
           </button>
@@ -88,6 +91,11 @@ export default function EmailGate({ token }: Props) {
           Inmagination Travel · Presupuesto privado
         </p>
       </div>
+
+      {/* Eslogan */}
+      <p className="mt-6 text-white/40 text-xs italic text-center">
+        "Viajar es invertir en recuerdos"
+      </p>
     </div>
   )
 }

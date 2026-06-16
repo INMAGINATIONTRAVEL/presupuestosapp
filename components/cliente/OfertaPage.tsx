@@ -195,15 +195,22 @@ export default function OfertaPage({ presupuesto }: Props) {
         <div className="text-center space-y-3 pb-4">
           <p className="text-xs text-gray-400 uppercase tracking-widest">¿Tienes alguna duda?</p>
           <a
-            href="https://wa.me/34000000000"
-            className="flex items-center justify-center gap-2 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-2xl transition-colors"
+            href={`https://wa.me/34${process.env.NEXT_PUBLIC_WHATSAPP_AGENCIA || '635593582'}?text=Hola%2C%20tengo%20una%20duda%20sobre%20mi%20presupuesto`}
+            className="flex items-center justify-center gap-2 w-full text-white font-bold py-4 rounded-2xl transition-colors"
+            style={{ background: '#25D366' }}
           >
             <span>💬</span> Escríbenos por WhatsApp
           </a>
           <p className="text-xs text-gray-400">O llámanos</p>
-          <a href="tel:34000000000" className="font-bold text-[#1C1C2E]">
-            000 000 000
+          <a href={`tel:34${process.env.NEXT_PUBLIC_WHATSAPP_AGENCIA || '635593582'}`} className="font-bold text-[#1C1C2E]">
+            {process.env.NEXT_PUBLIC_WHATSAPP_AGENCIA || '635593582'}
           </a>
+        </div>
+
+        {/* Eslogan footer */}
+        <div className="text-center pb-8">
+          <p className="text-xs text-gray-400 italic">"Viajar es invertir en recuerdos"</p>
+          <p className="text-xs text-gray-300 mt-1">Inmagination Travel</p>
         </div>
 
       </div>
