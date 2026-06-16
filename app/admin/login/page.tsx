@@ -6,11 +6,12 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">✨</div>
-          <h1 className="font-playfair text-2xl font-bold text-white">
-            Inmagination Travel
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">Panel de administración</p>
+          <img
+            src="/logo letra blanca.svg"
+            alt="Inmagination Travel"
+            className="h-20 w-auto mx-auto mb-3"
+          />
+          <p className="text-gray-400 text-sm">Panel de administración</p>
         </div>
 
         <LoginForm />

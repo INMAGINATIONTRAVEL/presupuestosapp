@@ -22,7 +22,7 @@ export default function HeroOferta({ nombre, numero, destino }: Props) {
 
       {/* Logo */}
       <div className="mb-5">
-        <img src="/inmaginationtravel.svg" alt="Inmagination Travel" className="h-12 w-auto opacity-90" />
+        <img src="/logo letra blanca.svg" alt="Inmagination Travel" className="h-12 w-auto opacity-90" />
       </div>
 
       {/* Badge número */}

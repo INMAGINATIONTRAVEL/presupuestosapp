@@ -17,6 +17,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: 'Inmagination Travel · Tu presupuesto mágico',
   description: 'Tu viaje a Disney Paris, personalizado para ti.',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
