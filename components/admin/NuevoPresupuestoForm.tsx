@@ -209,11 +209,35 @@ export default function NuevoPresupuestoForm({ extrasCatalogo }: { extrasCatalog
           </div>
           <div className="sm:col-span-2">
             <label className="label-admin">Hotel *</label>
-            <input value={hotel} onChange={e => setHotel(e.target.value)}
-              placeholder="Disney Newport Bay Club" required className="input-admin" />
+            <select value={hotel} onChange={e => setHotel(e.target.value)} required className="input-admin">
+              <option value="">— Selecciona hotel —</option>
+              <optgroup label="Hoteles Disney">
+                <option>Disneyland Hotel</option>
+                <option>Disney Hotel New York – The Art of Marvel</option>
+                <option>Disney Newport Bay Club</option>
+                <option>Disney Sequoia Lodge</option>
+                <option>Disney Hotel Cheyenne</option>
+                <option>Disney Hotel Santa Fe</option>
+                <option>Disney Davy Crockett Ranch</option>
+              </optgroup>
+              <optgroup label="Hoteles Partner">
+                <option>Villages Nature Paris</option>
+                <option>Hôtel l'Elysée Val d'Europe</option>
+                <option>Staycity Aparthotels Paris Marne-la-Vallée</option>
+                <option>Ki Space Hotel & Spa</option>
+                <option>Aparthotel Adagio Val d'Europe</option>
+                <option>B&B Hotel près de Disneyland Paris</option>
+                <option>Campanile Val de France</option>
+                <option>Explorers Hotel</option>
+                <option>Grand Magic Hotel</option>
+                <option>Dream Castle Hotel</option>
+                <option>Aparthotel Adagio Serris Val d'Europe</option>
+                <option>Hôtel AKENA Serris Val d'Europe</option>
+              </optgroup>
+            </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="label-admin">URL imagen hotel</label>
+            <label className="label-admin">URL imagen hotel <span className="text-gray-400 font-normal">(opcional)</span></label>
             <input value={hotelImagenUrl} onChange={e => setHotelImagenUrl(e.target.value)}
               placeholder="https://..." className="input-admin" />
           </div>

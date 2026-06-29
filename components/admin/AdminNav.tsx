@@ -26,7 +26,7 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
-          <img src="/logo letra blanca.png" alt="Inmagination Travel" className="h-14 w-auto" />
+          <img src="/logo letra blanca.png" alt="Inmagination Travel" className="h-10 w-auto" />
         </div>
 
         {/* Links */}
