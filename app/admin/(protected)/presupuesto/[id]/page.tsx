@@ -51,9 +51,9 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-1">
+          <div className="flex items-center gap-3 mb-1 flex-wrap">
             <Link href="/admin" className="text-gray-400 hover:text-gray-600 text-sm">← Volver</Link>
             <span className={`text-xs font-bold px-3 py-1 rounded-full ${badge.color}`}>{badge.label}</span>
             {p.veces_visto > 0 && (
@@ -65,7 +65,7 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
           </h1>
           <p className="text-gray-500 text-sm">{p.cliente_email}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <ReenviarEmailBtn presupuestoId={p.id} />
           <CambiarEstadoBtn presupuestoId={p.id} estadoActual={p.estado} />
         </div>
