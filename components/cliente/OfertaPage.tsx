@@ -16,6 +16,7 @@ interface Props {
 export default function OfertaPage({ presupuesto }: Props) {
   const [extrasSeleccionados, setExtrasSeleccionados] = useState<Set<string>>(new Set())
   const [mostrarReserva, setMostrarReserva] = useState(false)
+  const [notasCambio, setNotasCambio] = useState('')
 
   const noches = calcularNoches(presupuesto.fecha_inicio, presupuesto.fecha_fin)
   const dias = calcularDias(presupuesto.fecha_inicio, presupuesto.fecha_fin)
@@ -145,13 +146,22 @@ export default function OfertaPage({ presupuesto }: Props) {
             Si quieres añadir alguna opción mágica, cambiar fechas o el hotel, escríbenos aquí:
           </p>
           <textarea
-            id="notas-cambios"
+            value={notasCambio}
+            onChange={e => setNotasCambio(e.target.value)}
             placeholder="Ej: Me gustaría añadir el desayuno con princesas..."
             rows={3}
             className="w-full bg-gray-800 text-white placeholder-gray-500 rounded-xl px-4 py-3 text-sm resize-none border border-gray-700 focus:border-[#E8445A] transition-colors"
           />
-          <button className="mt-3 w-full border border-white text-white font-bold py-3 rounded-xl uppercase tracking-wide text-sm hover:bg-white hover:text-[#1C1C2E] transition-colors">
-            Enviar solicitud
+          <button
+            onClick={() => {
+              const msg = encodeURIComponent(
+                `Hola! Te escribo sobre mi presupuesto #${presupuesto.numero} (${presupuesto.cliente_nombre}).\n\n${notasCambio}`
+              )
+              window.open(`https://wa.me/34${process.env.NEXT_PUBLIC_WHATSAPP_AGENCIA}?text=${msg}`, '_blank')
+            }}
+            className="mt-3 w-full border border-white text-white font-bold py-3 rounded-xl uppercase tracking-wide text-sm hover:bg-white hover:text-[#1C1C2E] transition-colors"
+          >
+            💬 Enviar solicitud por WhatsApp
           </button>
         </div>
 

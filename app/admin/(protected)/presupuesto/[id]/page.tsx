@@ -5,6 +5,7 @@ import Link from 'next/link'
 import CopiarLinkBtn from '@/components/admin/CopiarLinkBtn'
 import CambiarEstadoBtn from '@/components/admin/CambiarEstadoBtn'
 import ReenviarEmailBtn from '@/components/admin/ReenviarEmailBtn'
+import DuplicarBtn from '@/components/admin/DuplicarBtn'
 
 const ESTADO_BADGE: Record<string, { label: string; color: string }> = {
   borrador:   { label: 'Borrador',   color: 'bg-gray-100 text-gray-600' },
@@ -66,6 +67,17 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
           <p className="text-gray-500 text-sm">{p.cliente_email}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          {p.cliente_telefono && (
+            <a
+              href={`https://wa.me/34${p.cliente_telefono.replace(/\s+/g, '')}?text=${encodeURIComponent(`Hola ${p.cliente_nombre.split(' ')[0]}, te escribo de Inmagination Travel sobre tu presupuesto #${p.numero} 😊`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm px-3 py-2 rounded-xl border border-green-300 text-green-700 hover:bg-green-50 transition-colors"
+            >
+              💬 WhatsApp
+            </a>
+          )}
+          <DuplicarBtn presupuestoId={p.id} />
           <ReenviarEmailBtn presupuestoId={p.id} />
           <CambiarEstadoBtn presupuestoId={p.id} estadoActual={p.estado} />
         </div>
