@@ -8,7 +8,7 @@ export default function DuplicarBtn({ presupuestoId }: { presupuestoId: string }
   const router = useRouter()
 
   async function handleDuplicar() {
-    if (!confirm('¿Duplicar este presupuesto como borrador?')) return
+    if (!confirm('¿Duplicar este presupuesto como nuevo borrador?')) return
     setEstado('cargando')
     try {
       const res = await fetch('/api/duplicar-presupuesto', {
@@ -18,7 +18,7 @@ export default function DuplicarBtn({ presupuestoId }: { presupuestoId: string }
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      router.push(`/admin/presupuesto/${data.id}`)
+      router.push(`/admin/editar/${data.id}`)
     } catch {
       setEstado('error')
       setTimeout(() => setEstado('idle'), 3000)

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { resend, EMAIL_FROM, EMAIL_AGENCIA } from '@/lib/resend'
 import { emailAgenteHTML } from '@/lib/emails/agente'
 
@@ -15,7 +15,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
   }
 
-  const supabase = await createClient()
+  // Admin client bypassa RLS — necesario porque lo llama el cliente (sin sesión admin)
+  const supabase = createAdminClient()
 
   const { data: presupuesto } = await supabase
     .from('presupuestos')
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Actualizar extras seleccionados por el cliente
+  // Marcar extras seleccionados
   if (extras_seleccionados?.length > 0) {
     await supabase
       .from('presupuesto_extras')
@@ -52,13 +53,13 @@ export async function POST(req: NextRequest) {
     telefono_reserva: telefono_reserva || null,
   })
 
-  // Actualizar estado
+  // Actualizar estado a confirmado
   await supabase
     .from('presupuestos')
     .update({ estado: 'confirmado' })
     .eq('id', presupuesto_id)
 
-  // Enviar email al agente si hay email configurado
+  // Email al agente
   if (EMAIL_AGENCIA) {
     const { data: extrasDB } = await supabase
       .from('presupuesto_extras')
@@ -72,29 +73,26 @@ export async function POST(req: NextRequest) {
     }))
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const linkAdmin = `${baseUrl}/admin/presupuesto/${presupuesto_id}`
-
-    const html = emailAgenteHTML({
-      clienteNombre: presupuesto.cliente_nombre,
-      clienteEmail: presupuesto.cliente_email,
-      clienteTelefono: presupuesto.cliente_telefono,
-      destino: presupuesto.destino,
-      hotel: presupuesto.hotel,
-      fechaInicio: presupuesto.fecha_inicio,
-      fechaFin: presupuesto.fecha_fin,
-      precioTotal: formatPrecio(presupuesto.precio_total),
-      extrasSeleccionados,
-      pagoFlexible: pago_flexible ?? false,
-      notasCliente: notas_cliente,
-      telefonoReserva: telefono_reserva,
-      linkAdmin,
-    })
 
     await resend.emails.send({
       from: EMAIL_FROM,
       to: EMAIL_AGENCIA,
       subject: `🎉 Nueva confirmación de reserva — ${presupuesto.cliente_nombre}`,
-      html,
+      html: emailAgenteHTML({
+        clienteNombre: presupuesto.cliente_nombre,
+        clienteEmail: presupuesto.cliente_email,
+        clienteTelefono: presupuesto.cliente_telefono,
+        destino: presupuesto.destino,
+        hotel: presupuesto.hotel,
+        fechaInicio: presupuesto.fecha_inicio,
+        fechaFin: presupuesto.fecha_fin,
+        precioTotal: formatPrecio(presupuesto.precio_total),
+        extrasSeleccionados,
+        pagoFlexible: pago_flexible ?? false,
+        notasCliente: notas_cliente,
+        telefonoReserva: telefono_reserva,
+        linkAdmin: `${baseUrl}/admin/presupuesto/${presupuesto_id}`,
+      }),
     })
   }
 

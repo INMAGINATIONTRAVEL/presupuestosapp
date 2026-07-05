@@ -29,6 +29,12 @@ export function calcularDias(inicio: string, fin: string): number {
   return calcularNoches(inicio, fin) + 1
 }
 
+export const CRUCEROS_NOMBRES = ['Disney Cruise Line', 'Royal Caribbean', 'MSC Cruceros', 'Costa Cruceros']
+
+export function esCrucero(hotel: string): boolean {
+  return CRUCEROS_NOMBRES.some(c => hotel?.includes(c))
+}
+
 export function totalViajeros(habitaciones: { adultos: number; ninos: { edad: number }[] }[]): {
   adultos: number
   ninos: number

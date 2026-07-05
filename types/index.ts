@@ -6,6 +6,11 @@ export interface Habitacion {
   ninos: { edad: number }[]
 }
 
+export interface VueloEstructurado {
+  ida: { origen: string; fecha: string; destino: string }
+  vuelta: { origen: string; fecha: string; destino: string }
+}
+
 export interface Presupuesto {
   id: string
   numero: number
@@ -21,8 +26,12 @@ export interface Presupuesto {
   tipo_habitacion: string | null
   plan_comidas: string | null
   incluye_vuelos: boolean
-  detalles_vuelos: any | null
+  detalles_vuelos: VueloEstructurado | string | null
   descripcion_oferta: string | null
+  observaciones: string | null
+  photopass: boolean
+  grupo_id: string | null
+  variante: string
   habitaciones: Habitacion[]
   precio_total: number
   precio_senal: number

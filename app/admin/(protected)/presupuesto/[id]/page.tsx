@@ -6,6 +6,7 @@ import CopiarLinkBtn from '@/components/admin/CopiarLinkBtn'
 import CambiarEstadoBtn from '@/components/admin/CambiarEstadoBtn'
 import ReenviarEmailBtn from '@/components/admin/ReenviarEmailBtn'
 import DuplicarBtn from '@/components/admin/DuplicarBtn'
+import AnadirVarianteBtn from '@/components/admin/AnadirVarianteBtn'
 
 const ESTADO_BADGE: Record<string, { label: string; color: string }> = {
   borrador:   { label: 'Borrador',   color: 'bg-gray-100 text-gray-600' },
@@ -28,26 +29,20 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
 
   if (!p) return notFound()
 
-  const { data: extras } = await supabase
-    .from('presupuesto_extras')
-    .select('*, extra:extras_catalogo(*)')
-    .eq('presupuesto_id', id)
-
-  const { data: confirmacion } = await supabase
-    .from('confirmaciones')
-    .select('*')
-    .eq('presupuesto_id', id)
-    .single()
-
-  const { data: viajeros } = await supabase
-    .from('viajeros')
-    .select('*')
-    .eq('presupuesto_id', id)
-    .order('habitacion_numero')
+  const [{ data: extras }, { data: confirmacion }, { data: viajeros }, { data: variantes }] = await Promise.all([
+    supabase.from('presupuesto_extras').select('*, extra:extras_catalogo(*)').eq('presupuesto_id', id),
+    supabase.from('confirmaciones').select('*').eq('presupuesto_id', id).single(),
+    supabase.from('viajeros').select('*').eq('presupuesto_id', id).order('habitacion_numero'),
+    p.grupo_id
+      ? supabase.from('presupuestos').select('id, variante, hotel, precio_total, estado').eq('grupo_id', p.grupo_id).order('variante')
+      : Promise.resolve({ data: [] }),
+  ])
 
   const badge = ESTADO_BADGE[p.estado] || ESTADO_BADGE.borrador
   const noches = calcularNoches(p.fecha_inicio, p.fecha_fin)
   const linkPresupuesto = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/presupuesto/${p.token}`
+  const variantesExistentes = (variantes || []).map((v: any) => v.variante)
+  const hayVariantes = (variantes || []).length > 1
 
   return (
     <div className="space-y-5">
@@ -57,6 +52,11 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
           <div className="flex items-center gap-3 mb-1 flex-wrap">
             <Link href="/admin" className="text-gray-400 hover:text-gray-600 text-sm">← Volver</Link>
             <span className={`text-xs font-bold px-3 py-1 rounded-full ${badge.color}`}>{badge.label}</span>
+            {p.variante && hayVariantes && (
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-purple-100 text-purple-700">
+                Opción {p.variante}
+              </span>
+            )}
             {p.veces_visto > 0 && (
               <span className="text-xs text-gray-400">👁 Visto {p.veces_visto} veces</span>
             )}
@@ -70,18 +70,53 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
           {p.cliente_telefono && (
             <a
               href={`https://wa.me/34${p.cliente_telefono.replace(/\s+/g, '')}?text=${encodeURIComponent(`Hola ${p.cliente_nombre.split(' ')[0]}, te escribo de Inmagination Travel sobre tu presupuesto #${p.numero} 😊`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               className="text-sm px-3 py-2 rounded-xl border border-green-300 text-green-700 hover:bg-green-50 transition-colors"
             >
               💬 WhatsApp
             </a>
           )}
+          <Link
+            href={`/admin/editar/${p.id}`}
+            className="text-sm px-3 py-2 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+          >
+            ✏️ Editar
+          </Link>
+          <AnadirVarianteBtn presupuestoId={p.id} variantesExistentes={variantesExistentes} />
           <DuplicarBtn presupuestoId={p.id} />
           <ReenviarEmailBtn presupuestoId={p.id} />
           <CambiarEstadoBtn presupuestoId={p.id} estadoActual={p.estado} />
         </div>
       </div>
+
+      {/* Variantes del grupo */}
+      {hayVariantes && (
+        <div className="bg-purple-50 rounded-2xl p-4 border border-purple-100">
+          <p className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-3">Opciones de este presupuesto</p>
+          <div className="flex gap-2 flex-wrap">
+            {(variantes || []).map((v: any) => (
+              <Link
+                key={v.id}
+                href={`/admin/presupuesto/${v.id}`}
+                className={`flex-1 min-w-[100px] rounded-xl p-3 text-center border-2 transition-colors ${
+                  v.id === p.id
+                    ? 'bg-[#1C1C2E] border-[#1C1C2E] text-white'
+                    : 'bg-white border-purple-200 text-gray-700 hover:border-purple-400'
+                }`}
+              >
+                <p className="font-black">Opción {v.variante}</p>
+                <p className="text-xs opacity-70 truncate">{v.hotel.split(' ').slice(0, 2).join(' ')}</p>
+                <p className={`text-sm font-bold ${v.id === p.id ? 'text-[#F5A623]' : 'text-[#E8445A]'}`}>
+                  {formatPrecio(v.precio_total)}
+                </p>
+                <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${ESTADO_BADGE[v.estado]?.color}`}>
+                  {ESTADO_BADGE[v.estado]?.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Link privado */}
       <div className="bg-[#1C1C2E] rounded-2xl p-4 flex items-center justify-between gap-3">
@@ -104,6 +139,7 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
             <p><span className="text-gray-500">Entrada:</span> <b>{formatFecha(p.fecha_inicio)}</b></p>
             <p><span className="text-gray-500">Salida:</span> <b>{formatFecha(p.fecha_fin)}</b></p>
             <p><span className="text-gray-500">Duración:</span> <b>{noches + 1} días / {noches} noches</b></p>
+            {p.photopass && <p><span className="text-gray-500">PhotoPass:</span> <b className="text-purple-600">✓ Incluido</b></p>}
           </div>
         </div>
 
@@ -118,6 +154,14 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
           )}
         </div>
       </div>
+
+      {/* Observaciones */}
+      {p.observaciones && (
+        <div className="bg-amber-50 rounded-2xl p-5 border border-amber-200">
+          <h3 className="font-bold text-amber-800 mb-2 text-sm uppercase tracking-wide">📌 Observaciones</h3>
+          <p className="text-sm text-amber-700 whitespace-pre-line">{p.observaciones}</p>
+        </div>
+      )}
 
       {/* Habitaciones */}
       <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
