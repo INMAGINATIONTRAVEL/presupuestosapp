@@ -48,9 +48,9 @@ function FormExtra({
       const supabase = createClient()
       const ext = file.name.split('.').pop()
       const path = `extras-catalogo/${Date.now()}.${ext}`
-      const { data, error } = await supabase.storage.from('imagenes').upload(path, file, { upsert: true })
+      const { data, error } = await supabase.storage.from('IMAGENES').upload(path, file, { upsert: true })
       if (!error && data) {
-        const { data: urlData } = supabase.storage.from('imagenes').getPublicUrl(path)
+        const { data: urlData } = supabase.storage.from('IMAGENES').getPublicUrl(path)
         setForm(prev => ({ ...prev, imagenUrl: urlData.publicUrl, subiendo: false }))
       } else {
         setForm(prev => ({ ...prev, subiendo: false }))

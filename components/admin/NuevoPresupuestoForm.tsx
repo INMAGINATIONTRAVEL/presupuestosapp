@@ -221,9 +221,9 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
       const supabase = createClient()
       const ext = file.name.split('.').pop()
       const path = `extras-personalizados/${Date.now()}-${index}.${ext}`
-      const { data, error } = await supabase.storage.from('imagenes').upload(path, file, { upsert: true })
+      const { data, error } = await supabase.storage.from('IMAGENES').upload(path, file, { upsert: true })
       if (!error && data) {
-        const { data: urlData } = supabase.storage.from('imagenes').getPublicUrl(path)
+        const { data: urlData } = supabase.storage.from('IMAGENES').getPublicUrl(path)
         setExtrasPersonalizados(prev => prev.map((e, i) => i === index ? { ...e, imagen_url: urlData.publicUrl, subiendo: false } : e))
       } else {
         setExtrasPersonalizados(prev => prev.map((e, i) => i === index ? { ...e, subiendo: false } : e))
