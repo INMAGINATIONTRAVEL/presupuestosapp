@@ -131,6 +131,29 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
     setGuardando(false)
   }
 
+  async function duplicarExtra(extra: ExtraCatalogo) {
+    setGuardando(true)
+    const supabase = createClient()
+    const { data: nuevo } = await supabase
+      .from('extras_catalogo')
+      .insert({
+        nombre: extra.nombre + ' (copia)',
+        descripcion: extra.descripcion || null,
+        precio_referencia: extra.precio_referencia,
+        imagen_url: extra.imagen_url || null,
+        orden: extras.length + 1,
+      })
+      .select()
+      .single()
+
+    if (nuevo) {
+      setExtras(prev => [...prev, nuevo])
+      setEditandoId(nuevo.id)
+      setShowNuevo(false)
+    }
+    setGuardando(false)
+  }
+
   async function toggleActivo(extra: ExtraCatalogo) {
     const supabase = createClient()
     await supabase.from('extras_catalogo').update({ activo: !extra.activo }).eq('id', extra.id)
@@ -188,6 +211,12 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
                             : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                         }`}>
                         {extra.activo ? 'Activo' : 'Inactivo'}
+                      </button>
+                      <button
+                        onClick={() => duplicarExtra(extra)}
+                        title="Duplicar"
+                        className="text-gray-400 hover:text-blue-500 transition-colors px-2 py-1 text-base">
+                        📋
                       </button>
                       <button
                         onClick={() => { setEditandoId(extra.id); setShowNuevo(false) }}
