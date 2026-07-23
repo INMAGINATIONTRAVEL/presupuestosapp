@@ -7,8 +7,21 @@ export interface Habitacion {
 }
 
 export interface VueloEstructurado {
-  ida: { origen: string; fecha: string; destino: string }
-  vuelta: { origen: string; fecha: string; destino: string }
+  ida: { origen: string; fecha: string; hora?: string; destino: string }
+  vuelta: { origen: string; fecha: string; hora?: string; destino: string }
+}
+
+export interface HotelAdicional {
+  nombre: string
+  imagen_url?: string
+  tipo_habitacion?: string
+}
+
+export interface ExtraPersonalizado {
+  nombre: string
+  descripcion?: string
+  imagen_url?: string
+  precio: number
 }
 
 export interface Presupuesto {
@@ -32,6 +45,8 @@ export interface Presupuesto {
   photopass: boolean
   grupo_id: string | null
   variante: string
+  hoteles_adicionales: HotelAdicional[] | null
+  extras_personalizados: ExtraPersonalizado[] | null
   habitaciones: Habitacion[]
   precio_total: number
   precio_senal: number

@@ -101,6 +101,49 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
           </div>
         )}
 
+        {/* Hoteles adicionales */}
+        {presupuesto.hoteles_adicionales && presupuesto.hoteles_adicionales.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
+            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">También incluye alojamiento en:</p>
+            {presupuesto.hoteles_adicionales.map((h: any, i: number) => (
+              <div key={i} className="rounded-xl overflow-hidden border border-gray-100">
+                {h.imagen_url && (
+                  <img src={h.imagen_url} alt={h.nombre} className="w-full h-32 object-cover" />
+                )}
+                <div className="px-4 py-3 bg-gray-50">
+                  <p className="font-bold text-[#1C1C2E]">{h.nombre}</p>
+                  {h.tipo_habitacion && <p className="text-sm text-gray-500">{h.tipo_habitacion}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Extras personalizados */}
+        {presupuesto.extras_personalizados && presupuesto.extras_personalizados.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-3">Incluido en tu viaje:</p>
+            <div className="space-y-3">
+              {presupuesto.extras_personalizados.map((e: any, i: number) => (
+                <div key={i} className="rounded-xl overflow-hidden border border-orange-100 bg-orange-50">
+                  {e.imagen_url && (
+                    <img src={e.imagen_url} alt={e.nombre} className="w-full h-40 object-cover" />
+                  )}
+                  <div className="px-4 py-3">
+                    <p className="font-bold text-[#1C1C2E]">{e.nombre}</p>
+                    {e.descripcion && <p className="text-sm text-gray-500 mt-0.5">{e.descripcion}</p>}
+                    {e.precio > 0 && (
+                      <p className="text-sm font-bold text-[#F5A623] mt-1">
+                        +{new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(e.precio)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Vuelos estructurados */}
         {presupuesto.incluye_vuelos && (
           <div className="mt-4 pt-4 border-t border-gray-100">
@@ -114,6 +157,9 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                   <div className="flex items-center gap-3 text-[#1C1C2E]">
                     <div className="text-center">
                       <p className="font-black text-xl">{vueloEstructurado.ida.origen}</p>
+                      {vueloEstructurado.ida.hora && (
+                        <p className="text-xs font-bold text-blue-700 mt-0.5">{vueloEstructurado.ida.hora}</p>
+                      )}
                     </div>
                     <div className="flex-1 flex items-center gap-1">
                       <div className="h-px flex-1 bg-blue-300"></div>
@@ -135,6 +181,9 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                   <div className="flex items-center gap-3 text-[#1C1C2E]">
                     <div className="text-center">
                       <p className="font-black text-xl">{vueloEstructurado.vuelta.origen}</p>
+                      {vueloEstructurado.vuelta.hora && (
+                        <p className="text-xs font-bold text-blue-700 mt-0.5">{vueloEstructurado.vuelta.hora}</p>
+                      )}
                     </div>
                     <div className="flex-1 flex items-center gap-1">
                       <div className="h-px flex-1 bg-blue-300"></div>
