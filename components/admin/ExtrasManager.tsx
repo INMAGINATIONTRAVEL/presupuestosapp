@@ -9,9 +9,10 @@ interface FormData {
   descripcion: string
   precio: string
   imagenUrl: string
+  subiendo: boolean
 }
 
-const FORM_VACIO: FormData = { nombre: '', descripcion: '', precio: '', imagenUrl: '' }
+const FORM_VACIO: FormData = { nombre: '', descripcion: '', precio: '', imagenUrl: '', subiendo: false }
 
 function extraToForm(e: ExtraCatalogo): FormData {
   return {
@@ -19,6 +20,7 @@ function extraToForm(e: ExtraCatalogo): FormData {
     descripcion: e.descripcion ?? '',
     precio: String(e.precio_referencia),
     imagenUrl: e.imagen_url ?? '',
+    subiendo: false,
   }
 }
 
@@ -36,8 +38,27 @@ function FormExtra({
   onCancel: () => void
 }) {
   const [form, setForm] = useState(initial)
-  const set = (k: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) =>
+  const set = (k: keyof Omit<FormData, 'subiendo'>) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(prev => ({ ...prev, [k]: e.target.value }))
+
+  async function subirImagen(file: File) {
+    setForm(prev => ({ ...prev, subiendo: true }))
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const ext = file.name.split('.').pop()
+      const path = `extras-catalogo/${Date.now()}.${ext}`
+      const { data, error } = await supabase.storage.from('imagenes').upload(path, file, { upsert: true })
+      if (!error && data) {
+        const { data: urlData } = supabase.storage.from('imagenes').getPublicUrl(path)
+        setForm(prev => ({ ...prev, imagenUrl: urlData.publicUrl, subiendo: false }))
+      } else {
+        setForm(prev => ({ ...prev, subiendo: false }))
+      }
+    } catch {
+      setForm(prev => ({ ...prev, subiendo: false }))
+    }
+  }
 
   return (
     <form
@@ -55,24 +76,30 @@ function FormExtra({
         <input value={form.descripcion} onChange={set('descripcion')}
           placeholder="Descripción breve..." className="input-admin" />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="label-admin">Precio referencia (€) *</label>
-          <input type="number" step="0.01" value={form.precio} onChange={set('precio')} required
-            placeholder="89" className="input-admin" />
-        </div>
-        <div>
-          <label className="label-admin">URL imagen</label>
-          <input value={form.imagenUrl} onChange={set('imagenUrl')}
-            placeholder="https://..." className="input-admin" />
-        </div>
+      <div>
+        <label className="label-admin">Precio referencia (€) *</label>
+        <input type="number" step="0.01" value={form.precio} onChange={set('precio')} required
+          placeholder="89" className="input-admin" />
+      </div>
+      <div>
+        <label className="label-admin">Imagen</label>
+        <label className={`flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl px-3 py-3 cursor-pointer hover:border-[#E8445A] transition-colors text-sm text-gray-500 font-semibold mb-2 ${form.subiendo ? 'opacity-50' : ''}`}>
+          {form.subiendo ? '⏳ Subiendo...' : '📎 Subir foto'}
+          <input type="file" accept="image/*" className="hidden" disabled={form.subiendo}
+            onChange={e => { if (e.target.files?.[0]) subirImagen(e.target.files[0]) }} />
+        </label>
+        <input value={form.imagenUrl} onChange={set('imagenUrl')}
+          placeholder="O pega una URL de imagen" className="input-admin text-xs" />
+        {form.imagenUrl && (
+          <img src={form.imagenUrl} alt="preview" className="mt-2 h-24 w-auto rounded-xl object-cover" />
+        )}
       </div>
       <div className="flex gap-3 pt-1">
         <button type="button" onClick={onCancel}
           className="flex-1 border border-gray-300 text-gray-600 font-semibold py-3 rounded-xl text-sm hover:bg-gray-50 transition-colors">
           Cancelar
         </button>
-        <button type="submit" disabled={guardando}
+        <button type="submit" disabled={guardando || form.subiendo}
           className="flex-1 bg-[#E8445A] hover:bg-[#C2185B] text-white font-bold py-3 rounded-xl text-sm transition-colors disabled:opacity-50">
           {guardando ? 'Guardando...' : 'Guardar'}
         </button>
