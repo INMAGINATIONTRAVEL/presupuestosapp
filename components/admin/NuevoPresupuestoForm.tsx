@@ -176,7 +176,6 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
       detalles_vuelos,
       descripcion_oferta: descripcionOferta || null,
       observaciones: observaciones || null,
-      photopass,
       habitaciones,
       precio_total: parseFloat(precioTotal),
       precio_senal: parseFloat(precioSenal),
@@ -196,6 +195,9 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
           .eq('id', editando.id)
 
         if (errU) throw new Error(errU.message)
+
+        // photopass separado por si la columna aún no existe en DB
+        await supabase.from('presupuestos').update({ photopass }).eq('id', editando.id)
 
         // Reemplazar extras
         await supabase.from('presupuesto_extras').delete().eq('presupuesto_id', editando.id)
@@ -228,6 +230,9 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
           .single()
 
         if (errP || !presupuesto) throw new Error(errP?.message || 'Error al crear presupuesto')
+
+        // photopass separado por si la columna aún no existe en DB
+        await supabase.from('presupuestos').update({ photopass }).eq('id', presupuesto.id)
 
         const extrasIncluidos = extras.filter(e => e.incluido)
         if (extrasIncluidos.length > 0) {
