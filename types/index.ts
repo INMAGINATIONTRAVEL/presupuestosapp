@@ -87,6 +87,8 @@ export interface Viajero {
   nombre: string
   apellidos: string
   dni_pasaporte: string
+  fecha_caducidad_doc?: string
+  fecha_nacimiento?: string
   edad?: number | null
 }
 

@@ -219,6 +219,7 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
             <p>Fecha: <b>{new Date(confirmacion.fecha_confirmacion).toLocaleString('es-ES')}</b></p>
             <p>Pago flexible: <b>{confirmacion.pago_flexible ? 'Sí' : 'No'}</b></p>
             {confirmacion.telefono_reserva && <p>Teléfono: <b>{confirmacion.telefono_reserva}</b></p>}
+            {confirmacion.direccion_titular && <p>Dirección: <b>{confirmacion.direccion_titular}</b></p>}
             {confirmacion.notas_cliente && (
               <div className="mt-2 bg-white rounded-xl p-3">
                 <p className="text-xs text-gray-500 font-semibold mb-1">NOTAS DEL CLIENTE:</p>
@@ -239,8 +240,9 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
                 <p className="font-semibold text-[#1C1C2E]">{v.nombre} {v.apellidos}</p>
                 <p className="text-gray-500 text-xs">
                   {v.tipo === 'nino' ? `Niño (${v.edad} años)` : 'Adulto'} · Hab. {v.habitacion_numero}
-                  {v.dni_pasaporte && ` · ${v.dni_pasaporte}`}
                 </p>
+                {v.fecha_nacimiento && <p className="text-gray-500 text-xs">Nacimiento: <b>{v.fecha_nacimiento}</b></p>}
+                {v.dni_pasaporte && <p className="text-gray-500 text-xs">Doc: <b>{v.dni_pasaporte}</b>{v.fecha_caducidad_doc && ` · Caduca: ${v.fecha_caducidad_doc}`}</p>}
               </div>
             ))}
           </div>

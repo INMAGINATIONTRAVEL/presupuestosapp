@@ -9,7 +9,7 @@ function formatPrecio(n: number) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { presupuesto_id, token, viajeros, extras_seleccionados, pago_flexible, notas_cliente, telefono_reserva } = body
+  const { presupuesto_id, token, viajeros, extras_seleccionados, pago_flexible, notas_cliente, telefono_reserva, direccion_titular } = body
 
   if (!presupuesto_id || !token) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
     pago_flexible: pago_flexible ?? false,
     notas_cliente: notas_cliente || null,
     telefono_reserva: telefono_reserva || null,
+    direccion_titular: direccion_titular || null,
   })
 
   // Actualizar estado a confirmado

@@ -20,14 +20,15 @@ export default function SeccionReserva({ presupuesto, extrasSeleccionados, total
   const [confirmado, setConfirmado] = useState(false)
 
   // Generar viajeros vacíos a partir de habitaciones
+  const [direccion, setDireccion] = useState('')
   const [viajeros, setViajeros] = useState<Viajero[]>(() => {
     const lista: Viajero[] = []
     presupuesto.habitaciones.forEach((hab) => {
       for (let i = 0; i < hab.adultos; i++) {
-        lista.push({ habitacion_numero: hab.num, tipo: 'adulto', nombre: '', apellidos: '', dni_pasaporte: '' })
+        lista.push({ habitacion_numero: hab.num, tipo: 'adulto', nombre: '', apellidos: '', dni_pasaporte: '', fecha_caducidad_doc: '', fecha_nacimiento: '' })
       }
       hab.ninos.forEach((nino) => {
-        lista.push({ habitacion_numero: hab.num, tipo: 'nino', nombre: '', apellidos: '', dni_pasaporte: '', edad: nino.edad })
+        lista.push({ habitacion_numero: hab.num, tipo: 'nino', nombre: '', apellidos: '', dni_pasaporte: '', fecha_caducidad_doc: '', fecha_nacimiento: '', edad: nino.edad })
       })
     })
     return lista
@@ -51,6 +52,7 @@ export default function SeccionReserva({ presupuesto, extrasSeleccionados, total
           pago_flexible: pagoFlexible,
           notas_cliente: notasCliente,
           telefono_reserva: telefono,
+          direccion_titular: direccion,
         }),
       })
       if (res.ok) setConfirmado(true)
@@ -143,6 +145,15 @@ export default function SeccionReserva({ presupuesto, extrasSeleccionados, total
                 className="mt-1 w-full px-4 py-3 border border-gray-200 rounded-xl text-[#1C1C2E] focus:border-[#E8445A] transition-colors"
               />
             </div>
+            <div>
+              <label className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Dirección</label>
+              <input
+                value={direccion}
+                onChange={e => setDireccion(e.target.value)}
+                placeholder="Calle, número, ciudad, código postal"
+                className="mt-1 w-full px-4 py-3 border border-gray-200 rounded-xl text-[#1C1C2E] focus:border-[#E8445A] transition-colors"
+              />
+            </div>
           </div>
         </div>
 
@@ -176,7 +187,7 @@ export default function SeccionReserva({ presupuesto, extrasSeleccionados, total
                 {adultosHab.map((viajero, relIdx) => {
                   const idx = viajeros.indexOf(viajero)
                   return (
-                    <div key={idx} className="mb-4">
+                    <div key={idx} className="mb-4 bg-gray-50 rounded-xl p-3">
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
                         Adulto {relIdx + 1}
                       </p>
@@ -185,19 +196,31 @@ export default function SeccionReserva({ presupuesto, extrasSeleccionados, total
                           placeholder="Nombre"
                           value={viajero.nombre}
                           onChange={e => actualizarViajero(idx, 'nombre', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
                         />
                         <input
                           placeholder="Apellidos"
                           value={viajero.apellidos}
                           onChange={e => actualizarViajero(idx, 'apellidos', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
+                        />
+                        <input
+                          placeholder="Fecha de nacimiento (DD/MM/AAAA)"
+                          value={viajero.fecha_nacimiento || ''}
+                          onChange={e => actualizarViajero(idx, 'fecha_nacimiento', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
                         />
                         <input
                           placeholder="DNI / Pasaporte"
                           value={viajero.dni_pasaporte}
                           onChange={e => actualizarViajero(idx, 'dni_pasaporte', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
+                        />
+                        <input
+                          placeholder="Fecha de caducidad del documento (DD/MM/AAAA)"
+                          value={viajero.fecha_caducidad_doc || ''}
+                          onChange={e => actualizarViajero(idx, 'fecha_caducidad_doc', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
                         />
                       </div>
                     </div>
@@ -207,7 +230,7 @@ export default function SeccionReserva({ presupuesto, extrasSeleccionados, total
                 {ninosHab.map((viajero, relIdx) => {
                   const idx = viajeros.indexOf(viajero)
                   return (
-                    <div key={idx} className="mb-4">
+                    <div key={idx} className="mb-4 bg-orange-50 rounded-xl p-3">
                       <p className="text-xs font-bold text-[#F5A623] uppercase tracking-wider mb-2">
                         😊 Niño {relIdx + 1} ({viajero.edad} años)
                       </p>
@@ -216,19 +239,31 @@ export default function SeccionReserva({ presupuesto, extrasSeleccionados, total
                           placeholder="Nombre"
                           value={viajero.nombre}
                           onChange={e => actualizarViajero(idx, 'nombre', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
                         />
                         <input
                           placeholder="Apellidos"
                           value={viajero.apellidos}
                           onChange={e => actualizarViajero(idx, 'apellidos', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
+                        />
+                        <input
+                          placeholder="Fecha de nacimiento (DD/MM/AAAA)"
+                          value={viajero.fecha_nacimiento || ''}
+                          onChange={e => actualizarViajero(idx, 'fecha_nacimiento', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
                         />
                         <input
                           placeholder="DNI / Pasaporte"
                           value={viajero.dni_pasaporte}
                           onChange={e => actualizarViajero(idx, 'dni_pasaporte', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
+                        />
+                        <input
+                          placeholder="Fecha de caducidad del documento (DD/MM/AAAA)"
+                          value={viajero.fecha_caducidad_doc || ''}
+                          onChange={e => actualizarViajero(idx, 'fecha_caducidad_doc', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:border-[#E8445A] transition-colors bg-white"
                         />
                       </div>
                     </div>
