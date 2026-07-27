@@ -92,6 +92,8 @@ export async function POST(req: NextRequest) {
         pagoFlexible: pago_flexible ?? false,
         notasCliente: notas_cliente,
         telefonoReserva: telefono_reserva,
+        direccionTitular: direccion_titular,
+        viajeros: viajeros ?? [],
         linkAdmin: `${baseUrl}/admin/presupuesto/${presupuesto_id}`,
       }),
     })
