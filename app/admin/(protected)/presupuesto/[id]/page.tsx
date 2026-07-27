@@ -145,13 +145,28 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
 
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h3 className="font-bold text-[#1C1C2E] mb-3 text-sm uppercase tracking-wide">Precio</h3>
-          <p className="font-playfair text-3xl font-bold text-[#E8445A]">{formatPrecio(p.precio_total)}</p>
-          <p className="text-sm text-gray-500 mt-1">Señal: <b className="text-[#1C1C2E]">{formatPrecio(p.precio_senal)}</b></p>
-          {p.fecha_expiracion && (
-            <p className="text-xs text-orange-500 mt-2">
-              ⏰ Expira: {new Date(p.fecha_expiracion).toLocaleDateString('es-ES')}
-            </p>
-          )}
+          {(() => {
+            const extrasSeleccionados = (extras || []).filter((e: any) => e.seleccionado_cliente)
+            const totalExtras = extrasSeleccionados.reduce((acc: number, e: any) => acc + e.precio_personalizado, 0)
+            const totalFinal = p.precio_total + totalExtras
+            return (
+              <>
+                <p className="font-playfair text-3xl font-bold text-[#E8445A]">{formatPrecio(totalFinal)}</p>
+                {totalExtras > 0 && (
+                  <div className="mt-1 text-xs text-gray-500 space-y-0.5">
+                    <p>Base: <b className="text-[#1C1C2E]">{formatPrecio(p.precio_total)}</b></p>
+                    <p>Extras cliente: <b className="text-green-600">+{formatPrecio(totalExtras)}</b></p>
+                  </div>
+                )}
+                <p className="text-sm text-gray-500 mt-2">Señal: <b className="text-[#1C1C2E]">{formatPrecio(p.precio_senal)}</b></p>
+                {p.fecha_expiracion && (
+                  <p className="text-xs text-orange-500 mt-2">
+                    ⏰ Expira: {new Date(p.fecha_expiracion).toLocaleDateString('es-ES')}
+                  </p>
+                )}
+              </>
+            )
+          })()}
         </div>
       </div>
 
