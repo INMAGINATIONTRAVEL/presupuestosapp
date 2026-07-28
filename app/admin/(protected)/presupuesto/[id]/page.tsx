@@ -149,6 +149,8 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
             const extrasSeleccionados = (extras || []).filter((e: any) => e.seleccionado_cliente)
             const totalExtras = extrasSeleccionados.reduce((acc: number, e: any) => acc + e.precio_personalizado, 0)
             const totalFinal = p.precio_total + totalExtras
+            const totalSeguros = extrasSeleccionados.filter((e: any) => e.extra?.es_seguro).reduce((acc: number, e: any) => acc + e.precio_personalizado, 0)
+            const senalTotal = p.precio_senal + totalSeguros
             return (
               <>
                 <p className="font-playfair text-3xl font-bold text-[#E8445A]">{formatPrecio(totalFinal)}</p>
@@ -158,7 +160,10 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
                     <p>Extras cliente: <b className="text-green-600">+{formatPrecio(totalExtras)}</b></p>
                   </div>
                 )}
-                <p className="text-sm text-gray-500 mt-2">Señal: <b className="text-[#1C1C2E]">{formatPrecio(p.precio_senal)}</b></p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Señal: <b className="text-[#1C1C2E]">{formatPrecio(senalTotal)}</b>
+                  {totalSeguros > 0 && <span className="text-xs text-blue-600 ml-1">(+{formatPrecio(totalSeguros)} seguro)</span>}
+                </p>
                 {p.fecha_expiracion && p.estado !== 'confirmado' && (
                   <p className="text-xs text-orange-500 mt-2">
                     ⏰ Expira: {new Date(p.fecha_expiracion).toLocaleDateString('es-ES')}
