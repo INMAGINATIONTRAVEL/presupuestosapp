@@ -208,19 +208,6 @@ export default function OfertaPage({ presupuesto: presupuestoInicial, variantes 
           <p className="text-xs text-gray-400 mt-1">Impuestos y tasas incluidos</p>
         </div>
 
-        {/* Pago flexible */}
-        <div className="bg-blue-50 rounded-2xl p-5 border border-blue-100">
-          <div className="flex items-center gap-3 mb-3">
-            <span>💳</span>
-            <span className="font-bold text-[#1C1C2E] text-sm uppercase tracking-wide">Pago Flexible</span>
-          </div>
-          <p className="text-sm text-[#1C1C2E]">
-            Reserva hoy con solo{' '}
-            <span className="font-bold text-[#E8445A]">{formatPrecio(senalTotal)}</span>.
-            El resto, págalo a tu ritmo hasta 30 días antes de viajar.
-          </p>
-        </div>
-
         <button
           onClick={() => setMostrarReserva(true)}
           className="w-full bg-[#E8445A] hover:bg-[#C2185B] text-white font-bold py-5 rounded-2xl uppercase tracking-widest text-base transition-colors shadow-lg"
