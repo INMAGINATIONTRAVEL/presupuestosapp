@@ -1,0 +1,194 @@
+'use client'
+
+import { useState, useRef } from 'react'
+import { createClient } from '@/lib/supabase/client'
+
+interface Hotel {
+  id: string
+  nombre: string
+  imagen_url: string | null
+  activo: boolean
+  orden: number
+}
+
+export default function HotelesManager({ hoteles: hotelesIniciales }: { hoteles: Hotel[] }) {
+  const [hoteles, setHoteles] = useState(hotelesIniciales)
+  const [showNuevo, setShowNuevo] = useState(false)
+  const [editandoId, setEditandoId] = useState<string | null>(null)
+  const [guardando, setGuardando] = useState(false)
+  const [nuevoNombre, setNuevoNombre] = useState('')
+  const [editNombre, setEditNombre] = useState('')
+  const [subiendoId, setSubiendoId] = useState<string | null>(null)
+  const dragIndex = useRef<number | null>(null)
+  const [dragOver, setDragOver] = useState<number | null>(null)
+
+  async function subirImagen(hotelId: string | 'nuevo', file: File, onUrl: (url: string) => void) {
+    setSubiendoId(hotelId)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop()
+      const path = `hoteles-catalogo/${Date.now()}.${ext}`
+      const { data, error } = await supabase.storage.from('IMAGENES').upload(path, file, { upsert: true })
+      if (!error && data) {
+        const { data: urlData } = supabase.storage.from('IMAGENES').getPublicUrl(path)
+        onUrl(urlData.publicUrl)
+      }
+    } finally {
+      setSubiendoId(null)
+    }
+  }
+
+  async function crear() {
+    if (!nuevoNombre.trim()) return
+    setGuardando(true)
+    const supabase = createClient()
+    const { data: nuevo } = await supabase
+      .from('hoteles_catalogo')
+      .insert({ nombre: nuevoNombre.trim(), orden: hoteles.length + 1 })
+      .select()
+      .single()
+    if (nuevo) {
+      setHoteles(prev => [...prev, nuevo])
+      setNuevoNombre('')
+      setShowNuevo(false)
+    }
+    setGuardando(false)
+  }
+
+  async function guardarNombre(id: string) {
+    const supabase = createClient()
+    await supabase.from('hoteles_catalogo').update({ nombre: editNombre }).eq('id', id)
+    setHoteles(prev => prev.map(h => h.id === id ? { ...h, nombre: editNombre } : h))
+    setEditandoId(null)
+  }
+
+  async function actualizarImagen(id: string, url: string) {
+    const supabase = createClient()
+    await supabase.from('hoteles_catalogo').update({ imagen_url: url }).eq('id', id)
+    setHoteles(prev => prev.map(h => h.id === id ? { ...h, imagen_url: url } : h))
+  }
+
+  async function toggleActivo(hotel: Hotel) {
+    const supabase = createClient()
+    await supabase.from('hoteles_catalogo').update({ activo: !hotel.activo }).eq('id', hotel.id)
+    setHoteles(prev => prev.map(h => h.id === hotel.id ? { ...h, activo: !h.activo } : h))
+  }
+
+  async function eliminar(id: string) {
+    if (!confirm('¿Eliminar este hotel del catálogo?')) return
+    const supabase = createClient()
+    await supabase.from('hoteles_catalogo').delete().eq('id', id)
+    setHoteles(prev => prev.filter(h => h.id !== id))
+  }
+
+  async function reordenar(fromIndex: number, toIndex: number) {
+    const nuevos = [...hoteles]
+    const [moved] = nuevos.splice(fromIndex, 1)
+    nuevos.splice(toIndex, 0, moved)
+    setHoteles(nuevos)
+    const supabase = createClient()
+    await Promise.all(nuevos.map((h, i) =>
+      supabase.from('hoteles_catalogo').update({ orden: i + 1 }).eq('id', h.id)
+    ))
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {hoteles.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <div className="text-4xl mb-2">🏨</div>
+            <p>No hay hoteles en el catálogo</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {hoteles.map((hotel, idx) => (
+              <div
+                key={hotel.id}
+                draggable
+                onDragStart={() => { dragIndex.current = idx }}
+                onDragOver={e => { e.preventDefault(); setDragOver(idx) }}
+                onDrop={() => {
+                  if (dragIndex.current !== null && dragIndex.current !== idx) reordenar(dragIndex.current, idx)
+                  dragIndex.current = null; setDragOver(null)
+                }}
+                onDragEnd={() => { dragIndex.current = null; setDragOver(null) }}
+                className={`flex items-center gap-3 px-4 py-3 transition-colors ${dragOver === idx ? 'bg-purple-50' : ''} ${!hotel.activo ? 'opacity-50' : ''}`}
+              >
+                <span className="text-gray-300 cursor-grab active:cursor-grabbing text-xl select-none flex-shrink-0">⠿</span>
+
+                {/* Imagen con botón de cambio */}
+                <label className={`relative flex-shrink-0 cursor-pointer group ${subiendoId === hotel.id ? 'opacity-50' : ''}`}>
+                  {hotel.imagen_url ? (
+                    <img src={hotel.imagen_url} alt={hotel.nombre} className="w-12 h-12 rounded-xl object-cover" />
+                  ) : (
+                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-xl">🏨</div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <span className="text-white text-xs">{subiendoId === hotel.id ? '⏳' : '📎'}</span>
+                  </div>
+                  <input type="file" accept="image/*" className="hidden" disabled={subiendoId === hotel.id}
+                    onChange={e => { if (e.target.files?.[0]) subirImagen(hotel.id, e.target.files[0], url => actualizarImagen(hotel.id, url)) }} />
+                </label>
+
+                {/* Nombre */}
+                <div className="flex-1 min-w-0">
+                  {editandoId === hotel.id ? (
+                    <div className="flex gap-2">
+                      <input value={editNombre} onChange={e => setEditNombre(e.target.value)}
+                        className="input-admin text-sm py-1 flex-1"
+                        onKeyDown={e => { if (e.key === 'Enter') guardarNombre(hotel.id) }}
+                        autoFocus />
+                      <button onClick={() => guardarNombre(hotel.id)}
+                        className="text-xs bg-[#E8445A] text-white px-3 py-1 rounded-lg font-bold">✓</button>
+                      <button onClick={() => setEditandoId(null)}
+                        className="text-xs text-gray-400 px-2">✕</button>
+                    </div>
+                  ) : (
+                    <p className="font-semibold text-[#1C1C2E] text-sm truncate">{hotel.nombre}</p>
+                  )}
+                </div>
+
+                {/* Acciones */}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button onClick={() => toggleActivo(hotel)}
+                    className={`text-xs px-2 py-1 rounded-full font-semibold transition-colors hidden sm:block ${hotel.activo ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                    {hotel.activo ? 'Activo' : 'Inac.'}
+                  </button>
+                  <button onClick={() => { setEditandoId(hotel.id); setEditNombre(hotel.nombre) }}
+                    title="Editar nombre" className="text-gray-400 hover:text-[#E8445A] transition-colors p-1.5 text-sm">✏️</button>
+                  <button onClick={() => eliminar(hotel.id)}
+                    title="Eliminar" className="text-red-400 hover:text-red-600 text-xs p-1.5">✕</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {showNuevo ? (
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#E8445A]/30 space-y-3">
+          <h3 className="font-playfair text-lg font-bold text-[#1C1C2E]">Nuevo hotel</h3>
+          <input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)}
+            placeholder="Nombre del hotel" className="input-admin"
+            onKeyDown={e => { if (e.key === 'Enter') crear() }} autoFocus />
+          <div className="flex gap-3">
+            <button onClick={() => { setShowNuevo(false); setNuevoNombre('') }}
+              className="flex-1 border border-gray-300 text-gray-600 font-semibold py-3 rounded-xl text-sm hover:bg-gray-50">
+              Cancelar
+            </button>
+            <button onClick={crear} disabled={guardando || !nuevoNombre.trim()}
+              className="flex-1 bg-[#E8445A] hover:bg-[#C2185B] text-white font-bold py-3 rounded-xl text-sm disabled:opacity-50">
+              {guardando ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setShowNuevo(true)}
+          className="w-full border-2 border-dashed border-gray-300 hover:border-[#E8445A] text-gray-500 hover:text-[#E8445A] font-semibold py-4 rounded-2xl text-sm transition-colors">
+          + Añadir hotel al catálogo
+        </button>
+      )}
+    </div>
+  )
+}

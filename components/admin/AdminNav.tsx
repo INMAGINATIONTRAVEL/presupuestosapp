@@ -18,6 +18,7 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
   const links = [
     { href: '/admin', label: '📋 Presupuestos' },
     { href: '/admin/extras', label: '✨ Extras' },
+    { href: '/admin/hoteles', label: '🏨 Hoteles' },
     { href: '/admin/nuevo', label: '＋ Nuevo' },
     { href: '/admin/configuracion', label: '⚙️ Config' },
   ]
