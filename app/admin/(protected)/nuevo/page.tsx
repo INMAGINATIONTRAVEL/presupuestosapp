@@ -1,11 +1,13 @@
 import NuevoPresupuestoForm from '@/components/admin/NuevoPresupuestoForm'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export default async function NuevoPresupuestoPage() {
   const supabase = await createClient()
+  const adminClient = createAdminClient()
   const [{ data: extras }, { data: hoteles }] = await Promise.all([
     supabase.from('extras_catalogo').select('*').eq('activo', true).order('orden'),
-    supabase.from('hoteles_catalogo').select('*').eq('activo', true).order('orden'),
+    adminClient.from('hoteles_catalogo').select('*').eq('activo', true).order('orden'),
   ])
 
   return (

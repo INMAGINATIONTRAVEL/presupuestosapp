@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import HotelesManager from '@/components/admin/HotelesManager'
 
 export default async function HotelesPage() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: hoteles } = await supabase
     .from('hoteles_catalogo')
     .select('*')

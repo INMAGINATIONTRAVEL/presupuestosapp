@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import NuevoPresupuestoForm from '@/components/admin/NuevoPresupuestoForm'
 
@@ -19,9 +20,10 @@ export default async function EditarPresupuestoPage({ params }: { params: Promis
     .select('extra_id, precio_personalizado')
     .eq('presupuesto_id', id)
 
+  const adminClient = createAdminClient()
   const [{ data: extrasCatalogo }, { data: hotelesCatalogo }] = await Promise.all([
     supabase.from('extras_catalogo').select('*').eq('activo', true).order('orden'),
-    supabase.from('hoteles_catalogo').select('*').eq('activo', true).order('orden'),
+    adminClient.from('hoteles_catalogo').select('*').eq('activo', true).order('orden'),
   ])
 
   return (
