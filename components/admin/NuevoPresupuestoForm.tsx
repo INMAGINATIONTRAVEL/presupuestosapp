@@ -36,42 +36,19 @@ interface EditandoData {
   extrasActuales: { extra_id: string; precio_personalizado: number }[]
 }
 
+interface HotelCatalogo {
+  id: string
+  nombre: string
+  imagen_url: string | null
+  activo: boolean
+}
+
 interface Props {
   extrasCatalogo: ExtraCatalogo[]
+  hotelesCatalogo: HotelCatalogo[]
   editando?: EditandoData
 }
 
-const HOTELES_DISNEY = [
-  'Disneyland Hotel',
-  'Disney Hotel New York – The Art of Marvel',
-  'Disney Newport Bay Club',
-  'Disney Sequoia Lodge',
-  'Disney Hotel Cheyenne',
-  'Disney Hotel Santa Fe',
-  'Disney Davy Crockett Ranch',
-]
-
-const HOTELES_PARTNER = [
-  'Villages Nature Paris',
-  'Hôtel l\'Elysée Val d\'Europe',
-  'Staycity Aparthotels Paris Marne-la-Vallée',
-  'Ki Space Hotel & Spa',
-  'Aparthotel Adagio Val d\'Europe',
-  'B&B Hotel près de Disneyland Paris',
-  'Campanile Val de France',
-  'Explorers Hotel',
-  'Grand Magic Hotel',
-  'Dream Castle Hotel',
-  'Aparthotel Adagio Serris Val d\'Europe',
-  'Hôtel AKENA Serris Val d\'Europe',
-]
-
-const CRUCEROS = [
-  'Disney Cruise Line',
-  'Royal Caribbean',
-  'MSC Cruceros',
-  'Costa Cruceros',
-]
 
 const PLANES_COMIDAS = [
   'Solo alojamiento',
@@ -83,7 +60,7 @@ const PLANES_COMIDAS = [
   'Pensión completa plus',
 ]
 
-export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props) {
+export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, editando }: Props) {
   const router = useRouter()
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
@@ -100,10 +77,9 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
   const [fechaInicio, setFechaInicio] = useState(p?.fecha_inicio || '')
   const [fechaFin, setFechaFin] = useState(p?.fecha_fin || '')
 
-  // Hotel principal — detectar si es manual (no está en ninguna lista)
-  const todasListas = [...HOTELES_DISNEY, ...HOTELES_PARTNER, ...CRUCEROS]
+  // Hotel principal — detectar si es manual (no está en el catálogo)
   const hotelInicial = p?.hotel || ''
-  const esManualInicial = hotelInicial !== '' && !todasListas.includes(hotelInicial)
+  const esManualInicial = hotelInicial !== '' && !hotelesCatalogo.some(h => h.nombre === hotelInicial)
   const [hotelSelect, setHotelSelect] = useState(esManualInicial ? '__manual__' : hotelInicial)
   const [hotelManual, setHotelManual] = useState(esManualInicial ? hotelInicial : '')
   const hotel = hotelSelect === '__manual__' ? hotelManual : hotelSelect
@@ -443,18 +419,19 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
           {/* Hotel principal */}
           <div className="sm:col-span-2">
             <label className="label-admin">Hotel / Crucero principal *</label>
-            <select value={hotelSelect} onChange={e => setHotelSelect(e.target.value)} required className="input-admin">
+            <select value={hotelSelect} onChange={e => {
+              const val = e.target.value
+              setHotelSelect(val)
+              if (val !== '__manual__' && val !== '') {
+                const hCat = hotelesCatalogo.find(h => h.nombre === val)
+                if (hCat?.imagen_url) setHotelImagenUrl(hCat.imagen_url)
+              }
+            }} required className="input-admin">
               <option value="">— Selecciona —</option>
               <option value="__manual__">✏️ Escribir manualmente</option>
-              <optgroup label="🏰 Hoteles Disney">
-                {HOTELES_DISNEY.map(h => <option key={h}>{h}</option>)}
-              </optgroup>
-              <optgroup label="🏨 Hoteles Partner">
-                {HOTELES_PARTNER.map(h => <option key={h}>{h}</option>)}
-              </optgroup>
-              <optgroup label="🚢 Cruceros">
-                {CRUCEROS.map(h => <option key={h}>{h}</option>)}
-              </optgroup>
+              {hotelesCatalogo.filter(h => h.activo).map(h => (
+                <option key={h.id} value={h.nombre}>{h.nombre}</option>
+              ))}
             </select>
             {hotelSelect === '__manual__' && (
               <input
@@ -534,7 +511,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
             </label>
 
             {incluyeVuelos && (
-              <div className="mt-3 space-y-3">
+              <><div className="mt-3 space-y-3">
                 {/* Ida */}
                 <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                   <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">✈️ Ida</p>
@@ -620,7 +597,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                 <textarea value={vueloObservaciones} onChange={e => setVueloObservaciones(e.target.value)}
                   rows={2} placeholder="Ej: Escala en Barcelona, facturar maleta aparte..." className="input-admin resize-none" />
               </div>
-            )}
+            </>)}
           </div>
         </div>
       </section>

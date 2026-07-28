@@ -3,11 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 
 export default async function NuevoPresupuestoPage() {
   const supabase = await createClient()
-  const { data: extras } = await supabase
-    .from('extras_catalogo')
-    .select('*')
-    .eq('activo', true)
-    .order('orden')
+  const [{ data: extras }, { data: hoteles }] = await Promise.all([
+    supabase.from('extras_catalogo').select('*').eq('activo', true).order('orden'),
+    supabase.from('hoteles_catalogo').select('*').eq('activo', true).order('orden'),
+  ])
 
   return (
     <div className="space-y-6">
@@ -19,7 +18,7 @@ export default async function NuevoPresupuestoPage() {
           Rellena los datos para crear el presupuesto del cliente
         </p>
       </div>
-      <NuevoPresupuestoForm extrasCatalogo={extras || []} />
+      <NuevoPresupuestoForm extrasCatalogo={extras || []} hotelesCatalogo={hoteles || []} />
     </div>
   )
 }

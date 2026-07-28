@@ -19,11 +19,10 @@ export default async function EditarPresupuestoPage({ params }: { params: Promis
     .select('extra_id, precio_personalizado')
     .eq('presupuesto_id', id)
 
-  const { data: extrasCatalogo } = await supabase
-    .from('extras_catalogo')
-    .select('*')
-    .eq('activo', true)
-    .order('orden')
+  const [{ data: extrasCatalogo }, { data: hotelesCatalogo }] = await Promise.all([
+    supabase.from('extras_catalogo').select('*').eq('activo', true).order('orden'),
+    supabase.from('hoteles_catalogo').select('*').eq('activo', true).order('orden'),
+  ])
 
   return (
     <div className="space-y-6">
@@ -35,6 +34,7 @@ export default async function EditarPresupuestoPage({ params }: { params: Promis
       </div>
       <NuevoPresupuestoForm
         extrasCatalogo={extrasCatalogo || []}
+        hotelesCatalogo={hotelesCatalogo || []}
         editando={{
           id,
           presupuesto,
