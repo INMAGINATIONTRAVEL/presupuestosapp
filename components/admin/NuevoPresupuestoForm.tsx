@@ -27,6 +27,7 @@ interface HotelAdicionalForm {
   plan_comidas: string
   fecha_inicio: string
   fecha_fin: string
+  observaciones: string
 }
 
 interface EditandoData {
@@ -125,6 +126,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
       plan_comidas: h.plan_comidas || '',
       fecha_inicio: h.fecha_inicio || '',
       fecha_fin: h.fecha_fin || '',
+      observaciones: h.observaciones || '',
     }))
   )
 
@@ -134,6 +136,9 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
     : null
   const [vueloIda, setVueloIda] = useState(vuelosObj?.ida || { origen: '', fecha: '', hora: '', hora_llegada: '', destino: '' })
   const [vueloVuelta, setVueloVuelta] = useState(vuelosObj?.vuelta || { origen: '', fecha: '', hora: '', hora_llegada: '', destino: '' })
+  const [vueloMochila, setVueloMochila] = useState((vuelosObj as any)?.incluye_mochila ?? false)
+  const [vueloMaletaCabina, setVueloMaletaCabina] = useState((vuelosObj as any)?.incluye_maleta_cabina ?? false)
+  const [vueloObservaciones, setVueloObservaciones] = useState((vuelosObj as any)?.observaciones || '')
 
   // Precios
   const [precioTotal, setPrecioTotal] = useState(p ? String(p.precio_total) : '')
@@ -202,7 +207,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
   // --- Hoteles adicionales ---
   function addHotelAdicional() {
     if (hotelesAdicionales.length >= 4) return
-    setHotelesAdicionales(prev => [...prev, { nombre: '', imagen_url: '', tipo_habitacion: '', plan_comidas: '', fecha_inicio: '', fecha_fin: '' }])
+    setHotelesAdicionales(prev => [...prev, { nombre: '', imagen_url: '', tipo_habitacion: '', plan_comidas: '', fecha_inicio: '', fecha_fin: '', observaciones: '' }])
   }
   function removeHotelAdicional(index: number) {
     setHotelesAdicionales(prev => prev.filter((_, i) => i !== index))
@@ -281,7 +286,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
     setGuardando(true)
 
     const detalles_vuelos = incluyeVuelos
-      ? { ida: vueloIda, vuelta: vueloVuelta }
+      ? { ida: vueloIda, vuelta: vueloVuelta, incluye_mochila: vueloMochila, incluye_maleta_cabina: vueloMaletaCabina, observaciones: vueloObservaciones || null }
       : null
 
     const hotelesValidos = hotelesAdicionales.filter(h => h.nombre.trim())
@@ -594,6 +599,27 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                   </div>
                 </div>
               </div>
+
+              {/* Equipaje y observaciones vuelos */}
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                <label className="flex items-center gap-3 cursor-pointer bg-blue-50 rounded-xl px-4 py-3 border border-blue-100">
+                  <input type="checkbox" checked={vueloMochila} onChange={e => setVueloMochila(e.target.checked)} className="w-4 h-4 accent-blue-600" />
+                  <div>
+                    <span className="text-sm font-semibold text-blue-800">🎒 Mochila / artículo personal</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer bg-blue-50 rounded-xl px-4 py-3 border border-blue-100">
+                  <input type="checkbox" checked={vueloMaletaCabina} onChange={e => setVueloMaletaCabina(e.target.checked)} className="w-4 h-4 accent-blue-600" />
+                  <div>
+                    <span className="text-sm font-semibold text-blue-800">🧳 Maleta de cabina</span>
+                  </div>
+                </label>
+              </div>
+              <div>
+                <label className="label-admin">Observaciones vuelos</label>
+                <textarea value={vueloObservaciones} onChange={e => setVueloObservaciones(e.target.value)}
+                  rows={2} placeholder="Ej: Escala en Barcelona, facturar maleta aparte..." className="input-admin resize-none" />
+              </div>
             )}
           </div>
         </div>
@@ -669,6 +695,12 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                   onChange={e => { if (e.target.files?.[0]) subirImagenHotelAdicional(idx, e.target.files[0]) }} />
               </label>
               {h.imagen_url && <img src={h.imagen_url} alt="preview" className="h-20 w-auto rounded-xl object-cover" />}
+              <textarea
+                value={h.observaciones}
+                onChange={e => updateHotelAdicional(idx, 'observaciones', e.target.value)}
+                placeholder="Observaciones (opcional)"
+                rows={2} className="input-admin resize-none text-sm"
+              />
             </div>
           ))}
         </div>

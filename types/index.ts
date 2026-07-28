@@ -18,6 +18,7 @@ export interface HotelAdicional {
   plan_comidas?: string
   fecha_inicio?: string
   fecha_fin?: string
+  observaciones?: string
 }
 
 export interface ExtraPersonalizado {

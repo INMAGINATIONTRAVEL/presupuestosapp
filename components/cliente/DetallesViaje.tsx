@@ -119,6 +119,7 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                   <p className="font-bold text-[#1C1C2E]">{h.nombre}</p>
                   {h.tipo_habitacion && <p className="text-sm text-gray-500">{h.tipo_habitacion}</p>}
                   {h.plan_comidas && <p className="text-xs text-gray-500 mt-0.5">🍽️ {h.plan_comidas}</p>}
+                  {h.observaciones && <p className="text-xs text-gray-400 italic mt-1">{h.observaciones}</p>}
                   {(h.fecha_inicio || h.fecha_fin) && (
                     <p className="text-xs text-gray-400 mt-1">
                       {h.fecha_inicio && new Date(h.fecha_inicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
@@ -217,6 +218,23 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                     {new Date(vueloEstructurado.vuelta.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </p>
                 </div>
+
+                {/* Equipaje */}
+                {((vueloEstructurado as any)?.incluye_mochila || (vueloEstructurado as any)?.incluye_maleta_cabina) && (
+                  <div className="flex gap-2 flex-wrap">
+                    {(vueloEstructurado as any).incluye_mochila && (
+                      <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">🎒 Mochila incluida</span>
+                    )}
+                    {(vueloEstructurado as any).incluye_maleta_cabina && (
+                      <span className="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">🧳 Maleta de cabina incluida</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Observaciones */}
+                {(vueloEstructurado as any)?.observaciones && (
+                  <p className="text-xs text-gray-500 italic bg-gray-50 rounded-xl px-4 py-2">{(vueloEstructurado as any).observaciones}</p>
+                )}
               </div>
             ) : vueloTextoLegacy ? (
               <div className="bg-blue-50 rounded-xl p-4 text-sm text-[#1C1C2E]">
