@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { ExtraCatalogo } from '@/types'
 
@@ -126,6 +126,8 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
   const [showNuevo, setShowNuevo] = useState(false)
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [guardando, setGuardando] = useState(false)
+  const dragIndex = useRef<number | null>(null)
+  const [dragOver, setDragOver] = useState<number | null>(null)
 
   async function crearExtra(data: FormData) {
     setGuardando(true)
@@ -202,6 +204,17 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
     setExtras(prev => prev.map(e => e.id === extra.id ? { ...e, activo: !e.activo } : e))
   }
 
+  async function reordenar(fromIndex: number, toIndex: number) {
+    const nuevos = [...extras]
+    const [moved] = nuevos.splice(fromIndex, 1)
+    nuevos.splice(toIndex, 0, moved)
+    setExtras(nuevos)
+    const supabase = createClient()
+    await Promise.all(nuevos.map((e, i) =>
+      supabase.from('extras_catalogo').update({ orden: i + 1 }).eq('id', e.id)
+    ))
+  }
+
   async function eliminar(id: string) {
     if (!confirm('¿Eliminar este extra del catálogo?')) return
     const supabase = createClient()
@@ -220,8 +233,22 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
-            {extras.map(extra => (
-              <div key={extra.id}>
+            {extras.map((extra, idx) => (
+              <div
+                key={extra.id}
+                draggable={editandoId !== extra.id}
+                onDragStart={() => { dragIndex.current = idx }}
+                onDragOver={e => { e.preventDefault(); setDragOver(idx) }}
+                onDrop={() => {
+                  if (dragIndex.current !== null && dragIndex.current !== idx) {
+                    reordenar(dragIndex.current, idx)
+                  }
+                  dragIndex.current = null
+                  setDragOver(null)
+                }}
+                onDragEnd={() => { dragIndex.current = null; setDragOver(null) }}
+                className={`transition-colors ${dragOver === idx ? 'bg-purple-50' : ''}`}
+              >
                 {editandoId === extra.id ? (
                   <div className="p-4">
                     <FormExtra
@@ -234,6 +261,7 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
                   </div>
                 ) : (
                   <div className={`flex items-center gap-4 px-5 py-4 ${!extra.activo ? 'opacity-50' : ''}`}>
+                    <span className="text-gray-300 cursor-grab active:cursor-grabbing text-lg select-none flex-shrink-0">⠿</span>
                     {extra.imagen_url ? (
                       <img src={extra.imagen_url} alt={extra.nombre}
                         className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
