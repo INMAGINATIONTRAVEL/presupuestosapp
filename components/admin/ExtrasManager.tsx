@@ -9,10 +9,11 @@ interface FormData {
   descripcion: string
   precio: string
   imagenUrl: string
+  esSeguro: boolean
   subiendo: boolean
 }
 
-const FORM_VACIO: FormData = { nombre: '', descripcion: '', precio: '', imagenUrl: '', subiendo: false }
+const FORM_VACIO: FormData = { nombre: '', descripcion: '', precio: '', imagenUrl: '', esSeguro: false, subiendo: false }
 
 function extraToForm(e: ExtraCatalogo): FormData {
   return {
@@ -20,6 +21,7 @@ function extraToForm(e: ExtraCatalogo): FormData {
     descripcion: e.descripcion ?? '',
     precio: String(e.precio_referencia),
     imagenUrl: e.imagen_url ?? '',
+    esSeguro: e.es_seguro ?? false,
     subiendo: false,
   }
 }
@@ -82,6 +84,17 @@ function FormExtra({
           placeholder="89" className="input-admin" />
       </div>
       <div>
+        <label className="flex items-center gap-3 cursor-pointer select-none py-1">
+          <input
+            type="checkbox"
+            checked={form.esSeguro}
+            onChange={e => setForm(prev => ({ ...prev, esSeguro: e.target.checked }))}
+            className="w-4 h-4 accent-[#E8445A]"
+          />
+          <span className="text-sm font-semibold text-[#1C1C2E]">🛡️ Es un seguro (se suma a la señal)</span>
+        </label>
+      </div>
+      <div>
         <label className="label-admin">Imagen</label>
         <label className={`flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl px-3 py-3 cursor-pointer hover:border-[#E8445A] transition-colors text-sm text-gray-500 font-semibold mb-2 ${form.subiendo ? 'opacity-50' : ''}`}>
           {form.subiendo ? '⏳ Subiendo...' : '📎 Subir foto'}
@@ -124,6 +137,7 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
         descripcion: data.descripcion || null,
         precio_referencia: parseFloat(data.precio),
         imagen_url: data.imagenUrl || null,
+        es_seguro: data.esSeguro,
         orden: extras.length + 1,
       })
       .select()
@@ -146,6 +160,7 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
         descripcion: data.descripcion || null,
         precio_referencia: parseFloat(data.precio),
         imagen_url: data.imagenUrl || null,
+        es_seguro: data.esSeguro,
       })
       .eq('id', id)
       .select()
@@ -226,7 +241,10 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
                       <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 text-xl">✨</div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-[#1C1C2E]">{extra.nombre}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-[#1C1C2E]">{extra.nombre}</p>
+                        {extra.es_seguro && <span className="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">🛡️ Seguro</span>}
+                      </div>
                       {extra.descripcion && <p className="text-xs text-gray-500 truncate">{extra.descripcion}</p>}
                       <p className="text-sm font-bold text-[#F5A623]">{extra.precio_referencia} € (referencia)</p>
                     </div>

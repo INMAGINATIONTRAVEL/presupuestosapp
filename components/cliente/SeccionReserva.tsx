@@ -8,10 +8,11 @@ interface Props {
   presupuesto: PresupuestoCompleto
   extrasSeleccionados: Set<string>
   totalFinal: number
+  senalTotal: number
   onVolver: () => void
 }
 
-export default function SeccionReserva({ presupuesto, extrasSeleccionados, totalFinal, onVolver }: Props) {
+export default function SeccionReserva({ presupuesto, extrasSeleccionados, totalFinal, senalTotal, onVolver }: Props) {
   const [paso, setPaso] = useState<'contacto' | 'viajeros' | 'resumen'>('contacto')
   const [telefono, setTelefono] = useState(presupuesto.cliente_telefono || '')
   const [notasCliente, setNotasCliente] = useState('')
@@ -324,7 +325,12 @@ export default function SeccionReserva({ presupuesto, extrasSeleccionados, total
                     Pago Flexible {pagoFlexible ? 'ACTIVO' : ''}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Pagas solo {formatPrecio(presupuesto.precio_senal)} ahora
+                    Pagas {formatPrecio(senalTotal)} ahora
+                    {senalTotal > presupuesto.precio_senal && (
+                      <span className="block text-blue-600">
+                        (señal {formatPrecio(presupuesto.precio_senal)} + seguro {formatPrecio(senalTotal - presupuesto.precio_senal)})
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>

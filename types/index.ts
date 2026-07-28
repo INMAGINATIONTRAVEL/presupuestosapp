@@ -66,6 +66,7 @@ export interface ExtraCatalogo {
   precio_referencia: number
   imagen_url: string | null
   activo: boolean
+  es_seguro: boolean
   orden: number
   created_at: string
 }

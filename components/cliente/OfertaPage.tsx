@@ -23,10 +23,14 @@ export default function OfertaPage({ presupuesto: presupuestoInicial, variantes 
   const noches = calcularNoches(presupuesto.fecha_inicio, presupuesto.fecha_fin)
   const dias = calcularDias(presupuesto.fecha_inicio, presupuesto.fecha_fin)
 
-  const totalExtras = presupuesto.extras
-    .filter(e => extrasSeleccionados.has(e.id))
-    .reduce((acc, e) => acc + e.precio_personalizado, 0)
+  const extrasElegidos = presupuesto.extras.filter(e => extrasSeleccionados.has(e.id))
+  const totalExtras = extrasElegidos.reduce((acc, e) => acc + e.precio_personalizado, 0)
   const totalFinal = presupuesto.precio_total + totalExtras
+
+  const totalSegurosSeleccionados = extrasElegidos
+    .filter(e => e.extra?.es_seguro)
+    .reduce((acc, e) => acc + e.precio_personalizado, 0)
+  const senalTotal = presupuesto.precio_senal + totalSegurosSeleccionados
 
   function toggleExtra(extraId: string) {
     setExtrasSeleccionados(prev => {
@@ -52,6 +56,7 @@ export default function OfertaPage({ presupuesto: presupuestoInicial, variantes 
         presupuesto={presupuesto}
         extrasSeleccionados={extrasSeleccionados}
         totalFinal={totalFinal}
+        senalTotal={senalTotal}
         onVolver={() => setMostrarReserva(false)}
       />
     )
@@ -69,7 +74,7 @@ export default function OfertaPage({ presupuesto: presupuestoInicial, variantes 
 
       <BarraPrecio
         total={totalFinal}
-        senal={presupuesto.precio_senal}
+        senal={senalTotal}
         onReservar={() => setMostrarReserva(true)}
       />
 
