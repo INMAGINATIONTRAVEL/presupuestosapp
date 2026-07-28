@@ -45,6 +45,7 @@ export interface Presupuesto {
   descripcion_oferta: string | null
   observaciones: string | null
   photopass: boolean
+  incluye_traslados: boolean
   grupo_id: string | null
   variante: string
   hoteles_adicionales: HotelAdicional[] | null

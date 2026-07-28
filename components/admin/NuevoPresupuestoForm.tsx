@@ -113,6 +113,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
   const [descripcionOferta, setDescripcionOferta] = useState(p?.descripcion_oferta || '')
   const [observaciones, setObservaciones] = useState(p?.observaciones || '')
   const [photopass, setPhotopass] = useState(p?.photopass || false)
+  const [incluyeTraslados, setIncluyeTraslados] = useState((p as any)?.incluye_traslados || false)
 
   // Hoteles adicionales
   const [hotelesAdicionales, setHotelesAdicionales] = useState<HotelAdicionalForm[]>(
@@ -288,7 +289,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
 
         if (errU) throw new Error(errU.message)
 
-        await supabase.from('presupuestos').update({ photopass }).eq('id', editando.id)
+        await supabase.from('presupuestos').update({ photopass, incluye_traslados: incluyeTraslados }).eq('id', editando.id)
 
         await supabase.from('presupuesto_extras').delete().eq('presupuesto_id', editando.id)
         const extrasIncluidos = extras.filter(e => e.incluido)
@@ -320,7 +321,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
 
         if (errP || !presupuesto) throw new Error(errP?.message || 'Error al crear presupuesto')
 
-        await supabase.from('presupuestos').update({ photopass }).eq('id', presupuesto.id)
+        await supabase.from('presupuestos').update({ photopass, incluye_traslados: incluyeTraslados }).eq('id', presupuesto.id)
 
         const extrasIncluidos = extras.filter(e => e.incluido)
         if (extrasIncluidos.length > 0) {
@@ -444,13 +445,21 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
 
           {/* Photopass — solo para no cruceros */}
           {!esCruceroSeleccionado && (
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label className="flex items-center gap-3 cursor-pointer bg-purple-50 rounded-xl px-4 py-3 border border-purple-100">
                 <input type="checkbox" checked={photopass} onChange={e => setPhotopass(e.target.checked)}
                   className="w-4 h-4 accent-purple-600" />
                 <div>
                   <span className="text-sm font-semibold text-purple-800">📸 Incluye PhotoPass</span>
                   <p className="text-xs text-purple-500">Fotos profesionales incluidas en el precio</p>
+                </div>
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer bg-green-50 rounded-xl px-4 py-3 border border-green-100">
+                <input type="checkbox" checked={incluyeTraslados} onChange={e => setIncluyeTraslados(e.target.checked)}
+                  className="w-4 h-4 accent-green-600" />
+                <div>
+                  <span className="text-sm font-semibold text-green-800">🚌 Incluye Traslados</span>
+                  <p className="text-xs text-green-500">Traslados incluidos en el precio</p>
                 </div>
               </label>
             </div>

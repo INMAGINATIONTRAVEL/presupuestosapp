@@ -140,6 +140,7 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
             <p><span className="text-gray-500">Salida:</span> <b>{formatFecha(p.fecha_fin)}</b></p>
             <p><span className="text-gray-500">Duración:</span> <b>{noches + 1} días / {noches} noches</b></p>
             {p.photopass && <p><span className="text-gray-500">PhotoPass:</span> <b className="text-purple-600">✓ Incluido</b></p>}
+            {p.incluye_traslados && <p><span className="text-gray-500">Traslados:</span> <b className="text-green-600">✓ Incluidos</b></p>}
           </div>
         </div>
 

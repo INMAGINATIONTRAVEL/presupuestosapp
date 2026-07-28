@@ -52,6 +52,11 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
               <span className="text-purple-600 text-sm font-bold">📸 PHOTOPASS INCLUIDO</span>
             </div>
           )}
+          {presupuesto.incluye_traslados && (
+            <div className="bg-green-50 rounded-xl px-4 py-2 inline-flex items-center gap-2">
+              <span className="text-green-600 text-sm font-bold">🚌 TRASLADOS INCLUIDOS</span>
+            </div>
+          )}
         </div>
 
         {/* Distribución habitaciones */}

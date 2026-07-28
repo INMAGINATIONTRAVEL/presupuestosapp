@@ -260,46 +260,49 @@ export default function ExtrasManager({ extras: extrasIniciales }: { extras: Ext
                     />
                   </div>
                 ) : (
-                  <div className={`flex items-center gap-4 px-5 py-4 ${!extra.activo ? 'opacity-50' : ''}`}>
-                    <span className="text-gray-300 cursor-grab active:cursor-grabbing text-lg select-none flex-shrink-0">⠿</span>
+                  <div className={`flex items-center gap-3 px-4 py-3 ${!extra.activo ? 'opacity-50' : ''}`}>
+                    <span className="text-gray-300 cursor-grab active:cursor-grabbing text-xl select-none flex-shrink-0 leading-none">⠿</span>
                     {extra.imagen_url ? (
                       <img src={extra.imagen_url} alt={extra.nombre}
-                        className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                        className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
                     ) : (
-                      <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 text-xl">✨</div>
+                      <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 text-lg">✨</div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-[#1C1C2E]">{extra.nombre}</p>
-                        {extra.es_seguro && <span className="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">🛡️ Seguro</span>}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-semibold text-[#1C1C2E] text-sm">{extra.nombre}</p>
+                        {extra.es_seguro && <span className="text-xs bg-blue-100 text-blue-700 font-bold px-1.5 py-0.5 rounded-full">🛡️</span>}
                       </div>
-                      {extra.descripcion && <p className="text-xs text-gray-500 truncate">{extra.descripcion}</p>}
-                      <p className="text-sm font-bold text-[#F5A623]">{extra.precio_referencia} € (referencia)</p>
+                      <p className="text-xs font-bold text-[#F5A623]">{extra.precio_referencia} €</p>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <button onClick={() => toggleActivo(extra)}
-                        className={`text-xs px-3 py-1.5 rounded-full font-semibold transition-colors ${
+                        className={`text-xs px-2 py-1 rounded-full font-semibold transition-colors hidden sm:block ${
                           extra.activo
                             ? 'bg-green-100 text-green-700 hover:bg-green-200'
                             : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                         }`}>
-                        {extra.activo ? 'Activo' : 'Inactivo'}
+                        {extra.activo ? 'Activo' : 'Inac.'}
                       </button>
+                      <button onClick={() => toggleActivo(extra)}
+                        className={`w-5 h-5 rounded-full flex-shrink-0 sm:hidden border-2 transition-colors ${
+                          extra.activo ? 'bg-green-400 border-green-400' : 'bg-white border-gray-300'
+                        }`} title={extra.activo ? 'Activo' : 'Inactivo'} />
                       <button
                         onClick={() => duplicarExtra(extra)}
                         title="Duplicar"
-                        className="text-gray-400 hover:text-blue-500 transition-colors px-2 py-1 text-base">
+                        className="text-gray-400 hover:text-blue-500 transition-colors p-1.5 text-sm">
                         📋
                       </button>
                       <button
                         onClick={() => { setEditandoId(extra.id); setShowNuevo(false) }}
                         title="Editar"
-                        className="text-gray-400 hover:text-[#E8445A] transition-colors px-2 py-1 text-base">
+                        className="text-gray-400 hover:text-[#E8445A] transition-colors p-1.5 text-sm">
                         ✏️
                       </button>
                       <button onClick={() => eliminar(extra.id)}
                         title="Eliminar"
-                        className="text-red-400 hover:text-red-600 text-sm px-2 py-1">
+                        className="text-red-400 hover:text-red-600 text-xs p-1.5">
                         ✕
                       </button>
                     </div>
