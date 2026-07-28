@@ -54,10 +54,10 @@ export async function POST(req: NextRequest) {
     direccion_titular: direccion_titular || null,
   })
 
-  // Actualizar estado a confirmado
+  // Actualizar estado a confirmado y borrar expiración
   await supabase
     .from('presupuestos')
-    .update({ estado: 'confirmado' })
+    .update({ estado: 'confirmado', fecha_expiracion: null })
     .eq('id', presupuesto_id)
 
   // Email al agente

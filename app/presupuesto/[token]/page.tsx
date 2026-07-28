@@ -21,8 +21,8 @@ export default async function PresupuestoPage({ params }: Props) {
 
   if (error || !presupuesto) return notFound()
 
-  // Comprobar si expiró
-  if (presupuesto.fecha_expiracion && new Date(presupuesto.fecha_expiracion) < new Date()) {
+  // Comprobar si expiró (los confirmados nunca expiran)
+  if (presupuesto.estado !== 'confirmado' && presupuesto.fecha_expiracion && new Date(presupuesto.fecha_expiracion) < new Date()) {
     const wa = process.env.NEXT_PUBLIC_WHATSAPP_AGENCIA || '635593582'
     const email = process.env.EMAIL_AGENCIA || 'reservas@inmaginationtravel.com'
     return (
