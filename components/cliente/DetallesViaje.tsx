@@ -113,6 +113,13 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                 <div className="px-4 py-3 bg-gray-50">
                   <p className="font-bold text-[#1C1C2E]">{h.nombre}</p>
                   {h.tipo_habitacion && <p className="text-sm text-gray-500">{h.tipo_habitacion}</p>}
+                  {(h.fecha_inicio || h.fecha_fin) && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {h.fecha_inicio && new Date(h.fecha_inicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
+                      {h.fecha_inicio && h.fecha_fin && ' → '}
+                      {h.fecha_fin && new Date(h.fecha_fin).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}

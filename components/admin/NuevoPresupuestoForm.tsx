@@ -24,6 +24,8 @@ interface HotelAdicionalForm {
   nombre: string
   imagen_url: string
   tipo_habitacion: string
+  fecha_inicio: string
+  fecha_fin: string
 }
 
 interface EditandoData {
@@ -118,6 +120,8 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
       nombre: h.nombre || '',
       imagen_url: h.imagen_url || '',
       tipo_habitacion: h.tipo_habitacion || '',
+      fecha_inicio: h.fecha_inicio || '',
+      fecha_fin: h.fecha_fin || '',
     }))
   )
 
@@ -195,7 +199,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
   // --- Hoteles adicionales ---
   function addHotelAdicional() {
     if (hotelesAdicionales.length >= 4) return
-    setHotelesAdicionales(prev => [...prev, { nombre: '', imagen_url: '', tipo_habitacion: '' }])
+    setHotelesAdicionales(prev => [...prev, { nombre: '', imagen_url: '', tipo_habitacion: '', fecha_inicio: '', fecha_fin: '' }])
   }
   function removeHotelAdicional(index: number) {
     setHotelesAdicionales(prev => prev.filter((_, i) => i !== index))
@@ -566,6 +570,20 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                 placeholder="Nombre del hotel"
                 className="input-admin"
               />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="label-admin">Entrada</label>
+                  <input type="date" value={h.fecha_inicio}
+                    onChange={e => updateHotelAdicional(idx, 'fecha_inicio', e.target.value)}
+                    className="input-admin" />
+                </div>
+                <div>
+                  <label className="label-admin">Salida</label>
+                  <input type="date" value={h.fecha_fin}
+                    onChange={e => updateHotelAdicional(idx, 'fecha_fin', e.target.value)}
+                    className="input-admin" />
+                </div>
+              </div>
               <input
                 value={h.tipo_habitacion}
                 onChange={e => updateHotelAdicional(idx, 'tipo_habitacion', e.target.value)}

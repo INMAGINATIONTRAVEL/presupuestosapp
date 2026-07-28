@@ -15,6 +15,8 @@ export interface HotelAdicional {
   nombre: string
   imagen_url?: string
   tipo_habitacion?: string
+  fecha_inicio?: string
+  fecha_fin?: string
 }
 
 export interface ExtraPersonalizado {
