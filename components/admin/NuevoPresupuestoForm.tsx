@@ -222,6 +222,41 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
   function updateExtraPersonalizado(index: number, campo: keyof Omit<ExtraPersonalizadoForm, 'subiendo'>, valor: string) {
     setExtrasPersonalizados(prev => prev.map((e, i) => i === index ? { ...e, [campo]: valor } : e))
   }
+  const [subiendoHotel, setSubiendoHotel] = useState(false)
+  const [subiendoHotelAdicional, setSubiendoHotelAdicional] = useState<number | null>(null)
+
+  async function subirImagenHotel(file: File) {
+    setSubiendoHotel(true)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop()
+      const path = `hoteles/${Date.now()}.${ext}`
+      const { data, error } = await supabase.storage.from('IMAGENES').upload(path, file, { upsert: true })
+      if (!error && data) {
+        const { data: urlData } = supabase.storage.from('IMAGENES').getPublicUrl(path)
+        setHotelImagenUrl(urlData.publicUrl)
+      }
+    } finally {
+      setSubiendoHotel(false)
+    }
+  }
+
+  async function subirImagenHotelAdicional(index: number, file: File) {
+    setSubiendoHotelAdicional(index)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop()
+      const path = `hoteles-adicionales/${Date.now()}-${index}.${ext}`
+      const { data, error } = await supabase.storage.from('IMAGENES').upload(path, file, { upsert: true })
+      if (!error && data) {
+        const { data: urlData } = supabase.storage.from('IMAGENES').getPublicUrl(path)
+        updateHotelAdicional(index, 'imagen_url', urlData.publicUrl)
+      }
+    } finally {
+      setSubiendoHotelAdicional(null)
+    }
+  }
+
   async function subirImagenExtra(index: number, file: File) {
     setExtrasPersonalizados(prev => prev.map((e, i) => i === index ? { ...e, subiendo: true } : e))
     try {
@@ -428,9 +463,13 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
           </div>
 
           <div className="sm:col-span-2">
-            <label className="label-admin">URL imagen hotel principal <span className="text-gray-400 font-normal">(opcional)</span></label>
-            <input value={hotelImagenUrl} onChange={e => setHotelImagenUrl(e.target.value)}
-              placeholder="https://..." className="input-admin" />
+            <label className="label-admin">Imagen hotel principal <span className="text-gray-400 font-normal">(opcional)</span></label>
+            <label className={`flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl px-3 py-3 cursor-pointer hover:border-[#E8445A] transition-colors text-sm text-gray-500 font-semibold ${subiendoHotel ? 'opacity-50' : ''}`}>
+              {subiendoHotel ? '⏳ Subiendo...' : '📎 Subir foto del hotel'}
+              <input type="file" accept="image/*" className="hidden" disabled={subiendoHotel}
+                onChange={e => { if (e.target.files?.[0]) subirImagenHotel(e.target.files[0]) }} />
+            </label>
+            {hotelImagenUrl && <img src={hotelImagenUrl} alt="preview" className="mt-2 h-24 w-auto rounded-xl object-cover" />}
           </div>
           <div>
             <label className="label-admin">{esCruceroSeleccionado ? 'Tipo de camarote' : 'Tipo habitación'}</label>
@@ -624,12 +663,12 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                 <option>Pensión completa</option>
                 <option>Pensión completa plus</option>
               </select>
-              <input
-                value={h.imagen_url}
-                onChange={e => updateHotelAdicional(idx, 'imagen_url', e.target.value)}
-                placeholder="URL imagen (opcional)"
-                className="input-admin"
-              />
+              <label className={`flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl px-3 py-2 cursor-pointer hover:border-[#E8445A] transition-colors text-sm text-gray-500 font-semibold ${subiendoHotelAdicional === idx ? 'opacity-50' : ''}`}>
+                {subiendoHotelAdicional === idx ? '⏳ Subiendo...' : '📎 Subir foto'}
+                <input type="file" accept="image/*" className="hidden" disabled={subiendoHotelAdicional === idx}
+                  onChange={e => { if (e.target.files?.[0]) subirImagenHotelAdicional(idx, e.target.files[0]) }} />
+              </label>
+              {h.imagen_url && <img src={h.imagen_url} alt="preview" className="h-20 w-auto rounded-xl object-cover" />}
             </div>
           ))}
         </div>
@@ -796,12 +835,6 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                       onChange={e => { if (e.target.files?.[0]) subirImagenExtra(idx, e.target.files[0]) }} />
                   </label>
                 </div>
-                <input
-                  value={ep.imagen_url}
-                  onChange={e => updateExtraPersonalizado(idx, 'imagen_url', e.target.value)}
-                  placeholder="O pega una URL de imagen"
-                  className="input-admin text-xs"
-                />
                 {ep.imagen_url && (
                   <img src={ep.imagen_url} alt="preview" className="h-20 w-auto rounded-lg object-cover" />
                 )}

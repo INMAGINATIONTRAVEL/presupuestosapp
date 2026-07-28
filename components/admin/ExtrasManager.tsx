@@ -101,8 +101,6 @@ function FormExtra({
           <input type="file" accept="image/*" className="hidden" disabled={form.subiendo}
             onChange={e => { if (e.target.files?.[0]) subirImagen(e.target.files[0]) }} />
         </label>
-        <input value={form.imagenUrl} onChange={set('imagenUrl')}
-          placeholder="O pega una URL de imagen" className="input-admin text-xs" />
         {form.imagenUrl && (
           <img src={form.imagenUrl} alt="preview" className="mt-2 h-24 w-auto rounded-xl object-cover" />
         )}
