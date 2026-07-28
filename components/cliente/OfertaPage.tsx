@@ -98,7 +98,7 @@ export default function OfertaPage({ presupuesto: presupuestoInicial, variantes 
                   }`}
                 >
                   <p className="font-black text-lg">Opción {v.variante}</p>
-                  <p className="text-xs truncate opacity-70">{v.hotel.split(' ').slice(0, 3).join(' ')}</p>
+                  <p className="text-xs opacity-70 leading-tight">{v.hotel}</p>
                   <p className={`text-sm font-bold mt-0.5 ${v.id === presupuesto.id ? 'text-[#F5A623]' : 'text-[#E8445A]'}`}>
                     {formatPrecio(v.precio_total)}
                   </p>

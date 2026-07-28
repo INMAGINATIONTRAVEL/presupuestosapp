@@ -7,14 +7,15 @@ export interface Habitacion {
 }
 
 export interface VueloEstructurado {
-  ida: { origen: string; fecha: string; hora?: string; destino: string }
-  vuelta: { origen: string; fecha: string; hora?: string; destino: string }
+  ida: { origen: string; fecha: string; hora?: string; hora_llegada?: string; destino: string }
+  vuelta: { origen: string; fecha: string; hora?: string; hora_llegada?: string; destino: string }
 }
 
 export interface HotelAdicional {
   nombre: string
   imagen_url?: string
   tipo_habitacion?: string
+  plan_comidas?: string
   fecha_inicio?: string
   fecha_fin?: string
 }

@@ -24,6 +24,7 @@ interface HotelAdicionalForm {
   nombre: string
   imagen_url: string
   tipo_habitacion: string
+  plan_comidas: string
   fecha_inicio: string
   fecha_fin: string
 }
@@ -121,6 +122,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
       nombre: h.nombre || '',
       imagen_url: h.imagen_url || '',
       tipo_habitacion: h.tipo_habitacion || '',
+      plan_comidas: h.plan_comidas || '',
       fecha_inicio: h.fecha_inicio || '',
       fecha_fin: h.fecha_fin || '',
     }))
@@ -130,8 +132,8 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
   const vuelosObj = p?.detalles_vuelos && typeof p.detalles_vuelos === 'object' && 'ida' in p.detalles_vuelos
     ? p.detalles_vuelos as VueloEstructurado
     : null
-  const [vueloIda, setVueloIda] = useState(vuelosObj?.ida || { origen: '', fecha: '', hora: '', destino: '' })
-  const [vueloVuelta, setVueloVuelta] = useState(vuelosObj?.vuelta || { origen: '', fecha: '', hora: '', destino: '' })
+  const [vueloIda, setVueloIda] = useState(vuelosObj?.ida || { origen: '', fecha: '', hora: '', hora_llegada: '', destino: '' })
+  const [vueloVuelta, setVueloVuelta] = useState(vuelosObj?.vuelta || { origen: '', fecha: '', hora: '', hora_llegada: '', destino: '' })
 
   // Precios
   const [precioTotal, setPrecioTotal] = useState(p ? String(p.precio_total) : '')
@@ -200,7 +202,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
   // --- Hoteles adicionales ---
   function addHotelAdicional() {
     if (hotelesAdicionales.length >= 4) return
-    setHotelesAdicionales(prev => [...prev, { nombre: '', imagen_url: '', tipo_habitacion: '', fecha_inicio: '', fecha_fin: '' }])
+    setHotelesAdicionales(prev => [...prev, { nombre: '', imagen_url: '', tipo_habitacion: '', plan_comidas: '', fecha_inicio: '', fecha_fin: '' }])
   }
   function removeHotelAdicional(index: number) {
     setHotelesAdicionales(prev => prev.filter((_, i) => i !== index))
@@ -492,10 +494,10 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                 {/* Ida */}
                 <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                   <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">✈️ Ida</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     <div>
                       <label className="label-admin text-xs">Origen</label>
-                      <input value={vueloIda.origen} onChange={e => setVueloIda(v => ({ ...v, origen: e.target.value }))}
+                      <input value={vueloIda.origen} onChange={e => setVueloIda(v => ({ ...v, origen: e.target.value.toUpperCase() }))}
                         placeholder="MAD" className="input-admin text-center font-bold uppercase" maxLength={4} />
                     </div>
                     <div>
@@ -509,8 +511,13 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                         className="input-admin" />
                     </div>
                     <div>
+                      <label className="label-admin text-xs">Hora llegada</label>
+                      <input type="time" value={(vueloIda as any).hora_llegada || ''} onChange={e => setVueloIda(v => ({ ...v, hora_llegada: e.target.value }))}
+                        className="input-admin" />
+                    </div>
+                    <div>
                       <label className="label-admin text-xs">Destino</label>
-                      <input value={vueloIda.destino} onChange={e => setVueloIda(v => ({ ...v, destino: e.target.value }))}
+                      <input value={vueloIda.destino} onChange={e => setVueloIda(v => ({ ...v, destino: e.target.value.toUpperCase() }))}
                         placeholder="CDG" className="input-admin text-center font-bold uppercase" maxLength={4} />
                     </div>
                   </div>
@@ -519,10 +526,10 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                 {/* Vuelta */}
                 <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                   <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">✈️ Vuelta</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     <div>
                       <label className="label-admin text-xs">Origen</label>
-                      <input value={vueloVuelta.origen} onChange={e => setVueloVuelta(v => ({ ...v, origen: e.target.value }))}
+                      <input value={vueloVuelta.origen} onChange={e => setVueloVuelta(v => ({ ...v, origen: e.target.value.toUpperCase() }))}
                         placeholder="CDG" className="input-admin text-center font-bold uppercase" maxLength={4} />
                     </div>
                     <div>
@@ -536,8 +543,13 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                         className="input-admin" />
                     </div>
                     <div>
+                      <label className="label-admin text-xs">Hora llegada</label>
+                      <input type="time" value={(vueloVuelta as any).hora_llegada || ''} onChange={e => setVueloVuelta(v => ({ ...v, hora_llegada: e.target.value }))}
+                        className="input-admin" />
+                    </div>
+                    <div>
                       <label className="label-admin text-xs">Destino</label>
-                      <input value={vueloVuelta.destino} onChange={e => setVueloVuelta(v => ({ ...v, destino: e.target.value }))}
+                      <input value={vueloVuelta.destino} onChange={e => setVueloVuelta(v => ({ ...v, destino: e.target.value.toUpperCase() }))}
                         placeholder="MAD" className="input-admin text-center font-bold uppercase" maxLength={4} />
                     </div>
                   </div>
@@ -599,6 +611,19 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, editando }: Props
                 placeholder="Tipo de habitación (opcional)"
                 className="input-admin"
               />
+              <select
+                value={h.plan_comidas}
+                onChange={e => updateHotelAdicional(idx, 'plan_comidas', e.target.value)}
+                className="input-admin"
+              >
+                <option value="">Régimen de comidas (opcional)</option>
+                <option>Solo alojamiento</option>
+                <option>Desayuno</option>
+                <option>Media pensión</option>
+                <option>Media pensión plus</option>
+                <option>Pensión completa</option>
+                <option>Pensión completa plus</option>
+              </select>
               <input
                 value={h.imagen_url}
                 onChange={e => updateHotelAdicional(idx, 'imagen_url', e.target.value)}

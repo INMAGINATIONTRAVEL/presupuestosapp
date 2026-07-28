@@ -118,6 +118,7 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                 <div className="px-4 py-3 bg-gray-50">
                   <p className="font-bold text-[#1C1C2E]">{h.nombre}</p>
                   {h.tipo_habitacion && <p className="text-sm text-gray-500">{h.tipo_habitacion}</p>}
+                  {h.plan_comidas && <p className="text-xs text-gray-500 mt-0.5">🍽️ {h.plan_comidas}</p>}
                   {(h.fecha_inicio || h.fecha_fin) && (
                     <p className="text-xs text-gray-400 mt-1">
                       {h.fecha_inicio && new Date(h.fecha_inicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
@@ -134,7 +135,7 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
         {/* Extras personalizados */}
         {presupuesto.extras_personalizados && presupuesto.extras_personalizados.length > 0 && (
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-3">Incluido en tu viaje:</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-3">Extras del viaje:</p>
             <div className="space-y-3">
               {presupuesto.extras_personalizados.map((e: any, i: number) => (
                 <div key={i} className="rounded-xl overflow-hidden border border-orange-100 bg-orange-50">
@@ -168,9 +169,12 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                   <p className="text-xs text-blue-500 font-bold uppercase tracking-wider mb-2">Ida</p>
                   <div className="flex items-center gap-3 text-[#1C1C2E]">
                     <div className="text-center">
-                      <p className="font-black text-xl">{vueloEstructurado.ida.origen}</p>
+                      <p className="font-black text-xl">{vueloEstructurado.ida.origen?.toUpperCase()}</p>
                       {vueloEstructurado.ida.hora && (
-                        <p className="text-xs font-bold text-blue-700 mt-0.5">{vueloEstructurado.ida.hora}</p>
+                        <p className="text-xs font-bold text-blue-700 mt-0.5">Sal. {vueloEstructurado.ida.hora}</p>
+                      )}
+                      {(vueloEstructurado.ida as any).hora_llegada && (
+                        <p className="text-xs text-blue-500 mt-0.5">Ll. {(vueloEstructurado.ida as any).hora_llegada}</p>
                       )}
                     </div>
                     <div className="flex-1 flex items-center gap-1">
@@ -179,7 +183,7 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                       <div className="h-px flex-1 bg-blue-300"></div>
                     </div>
                     <div className="text-center">
-                      <p className="font-black text-xl">{vueloEstructurado.ida.destino}</p>
+                      <p className="font-black text-xl">{vueloEstructurado.ida.destino?.toUpperCase()}</p>
                     </div>
                   </div>
                   <p className="text-center text-xs text-blue-600 font-semibold mt-2">
@@ -192,9 +196,12 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                   <p className="text-xs text-blue-500 font-bold uppercase tracking-wider mb-2">Vuelta</p>
                   <div className="flex items-center gap-3 text-[#1C1C2E]">
                     <div className="text-center">
-                      <p className="font-black text-xl">{vueloEstructurado.vuelta.origen}</p>
+                      <p className="font-black text-xl">{vueloEstructurado.vuelta.origen?.toUpperCase()}</p>
                       {vueloEstructurado.vuelta.hora && (
-                        <p className="text-xs font-bold text-blue-700 mt-0.5">{vueloEstructurado.vuelta.hora}</p>
+                        <p className="text-xs font-bold text-blue-700 mt-0.5">Sal. {vueloEstructurado.vuelta.hora}</p>
+                      )}
+                      {(vueloEstructurado.vuelta as any).hora_llegada && (
+                        <p className="text-xs text-blue-500 mt-0.5">Ll. {(vueloEstructurado.vuelta as any).hora_llegada}</p>
                       )}
                     </div>
                     <div className="flex-1 flex items-center gap-1">
@@ -203,7 +210,7 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                       <div className="h-px flex-1 bg-blue-300"></div>
                     </div>
                     <div className="text-center">
-                      <p className="font-black text-xl">{vueloEstructurado.vuelta.destino}</p>
+                      <p className="font-black text-xl">{vueloEstructurado.vuelta.destino?.toUpperCase()}</p>
                     </div>
                   </div>
                   <p className="text-center text-xs text-blue-600 font-semibold mt-2">

@@ -141,6 +141,14 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
             <p><span className="text-gray-500">Duración:</span> <b>{noches + 1} días / {noches} noches</b></p>
             {p.photopass && <p><span className="text-gray-500">PhotoPass:</span> <b className="text-purple-600">✓ Incluido</b></p>}
             {p.incluye_traslados && <p><span className="text-gray-500">Traslados:</span> <b className="text-green-600">✓ Incluidos</b></p>}
+            {p.hoteles_adicionales && p.hoteles_adicionales.length > 0 && (
+              <div className="mt-2 pt-2 border-t border-gray-100">
+                <p className="text-gray-500 text-xs mb-1">También alojamiento en:</p>
+                {p.hoteles_adicionales.map((h: any, i: number) => (
+                  <p key={i} className="text-sm"><b>{h.nombre}</b>{h.plan_comidas && <span className="text-gray-500"> · {h.plan_comidas}</span>}{h.fecha_inicio && <span className="text-gray-400 text-xs"> ({new Date(h.fecha_inicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}{h.fecha_fin && ` → ${new Date(h.fecha_fin).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`})</span>}</p>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
