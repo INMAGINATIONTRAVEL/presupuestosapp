@@ -16,13 +16,26 @@ export default function HotelesManager({ hoteles: hotelesIniciales }: { hoteles:
   const [showNuevo, setShowNuevo] = useState(false)
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [guardando, setGuardando] = useState(false)
+  const [error, setError] = useState('')
   const [nuevoNombre, setNuevoNombre] = useState('')
   const [editNombre, setEditNombre] = useState('')
   const [subiendoId, setSubiendoId] = useState<string | null>(null)
+  const [importando, setImportando] = useState(false)
   const dragIndex = useRef<number | null>(null)
   const [dragOver, setDragOver] = useState<number | null>(null)
 
-  async function subirImagen(hotelId: string | 'nuevo', file: File, onUrl: (url: string) => void) {
+  async function api(method: string, body: object) {
+    const res = await fetch('/api/admin/hoteles', {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    const json = await res.json()
+    if (!res.ok) throw new Error(json.error || 'Error desconocido')
+    return json
+  }
+
+  async function subirImagen(hotelId: string, file: File, onUrl: (url: string) => void) {
     setSubiendoId(hotelId)
     try {
       const supabase = createClient()
@@ -41,44 +54,71 @@ export default function HotelesManager({ hoteles: hotelesIniciales }: { hoteles:
   async function crear() {
     if (!nuevoNombre.trim()) return
     setGuardando(true)
-    const supabase = createClient()
-    const { data: nuevo } = await supabase
-      .from('hoteles_catalogo')
-      .insert({ nombre: nuevoNombre.trim(), orden: hoteles.length + 1 })
-      .select()
-      .single()
-    if (nuevo) {
+    setError('')
+    try {
+      const nuevo = await api('POST', { nombre: nuevoNombre.trim(), orden: hoteles.length + 1 })
       setHoteles(prev => [...prev, nuevo])
       setNuevoNombre('')
       setShowNuevo(false)
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setGuardando(false)
     }
-    setGuardando(false)
   }
 
   async function guardarNombre(id: string) {
-    const supabase = createClient()
-    await supabase.from('hoteles_catalogo').update({ nombre: editNombre }).eq('id', id)
-    setHoteles(prev => prev.map(h => h.id === id ? { ...h, nombre: editNombre } : h))
-    setEditandoId(null)
+    try {
+      await api('PATCH', { id, nombre: editNombre })
+      setHoteles(prev => prev.map(h => h.id === id ? { ...h, nombre: editNombre } : h))
+      setEditandoId(null)
+    } catch (e: any) {
+      setError(e.message)
+    }
   }
 
   async function actualizarImagen(id: string, url: string) {
-    const supabase = createClient()
-    await supabase.from('hoteles_catalogo').update({ imagen_url: url }).eq('id', id)
-    setHoteles(prev => prev.map(h => h.id === id ? { ...h, imagen_url: url } : h))
+    try {
+      await api('PATCH', { id, imagen_url: url })
+      setHoteles(prev => prev.map(h => h.id === id ? { ...h, imagen_url: url } : h))
+    } catch (e: any) {
+      setError(e.message)
+    }
   }
 
   async function toggleActivo(hotel: Hotel) {
-    const supabase = createClient()
-    await supabase.from('hoteles_catalogo').update({ activo: !hotel.activo }).eq('id', hotel.id)
-    setHoteles(prev => prev.map(h => h.id === hotel.id ? { ...h, activo: !h.activo } : h))
+    try {
+      await api('PATCH', { id: hotel.id, activo: !hotel.activo })
+      setHoteles(prev => prev.map(h => h.id === hotel.id ? { ...h, activo: !h.activo } : h))
+    } catch (e: any) {
+      setError(e.message)
+    }
   }
 
   async function eliminar(id: string) {
     if (!confirm('¿Eliminar este hotel del catálogo?')) return
-    const supabase = createClient()
-    await supabase.from('hoteles_catalogo').delete().eq('id', id)
-    setHoteles(prev => prev.filter(h => h.id !== id))
+    try {
+      await api('DELETE', { id })
+      setHoteles(prev => prev.filter(h => h.id !== id))
+    } catch (e: any) {
+      setError(e.message)
+    }
+  }
+
+  async function importarHoteles() {
+    setImportando(true)
+    setError('')
+    try {
+      const res = await fetch('/api/admin/hoteles/seed', { method: 'POST' })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error)
+      const { data } = await fetch('/api/admin/hoteles').then(r => r.json().then(d => ({ data: d })))
+      setHoteles(data || [])
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setImportando(false)
+    }
   }
 
   async function reordenar(fromIndex: number, toIndex: number) {
@@ -86,19 +126,31 @@ export default function HotelesManager({ hoteles: hotelesIniciales }: { hoteles:
     const [moved] = nuevos.splice(fromIndex, 1)
     nuevos.splice(toIndex, 0, moved)
     setHoteles(nuevos)
-    const supabase = createClient()
     await Promise.all(nuevos.map((h, i) =>
-      supabase.from('hoteles_catalogo').update({ orden: i + 1 }).eq('id', h.id)
+      api('PATCH', { id: h.id, orden: i + 1 })
     ))
   }
 
   return (
     <div className="space-y-4">
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {hoteles.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
-            <div className="text-4xl mb-2">🏨</div>
+          <div className="text-center py-12 text-gray-400 space-y-4">
+            <div className="text-4xl">🏨</div>
             <p>No hay hoteles en el catálogo</p>
+            <button
+              onClick={importarHoteles}
+              disabled={importando}
+              className="mx-auto flex items-center gap-2 bg-[#1C1C2E] hover:bg-[#2d2d45] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50"
+            >
+              {importando ? '⏳ Importando...' : '📋 Importar lista de hoteles predeterminada'}
+            </button>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
@@ -128,7 +180,11 @@ export default function HotelesManager({ hoteles: hotelesIniciales }: { hoteles:
                     <span className="text-white text-xs">{subiendoId === hotel.id ? '⏳' : '📎'}</span>
                   </div>
                   <input type="file" accept="image/*" className="hidden" disabled={subiendoId === hotel.id}
-                    onChange={e => { if (e.target.files?.[0]) subirImagen(hotel.id, e.target.files[0], url => actualizarImagen(hotel.id, url)) }} />
+                    onChange={e => {
+                      if (e.target.files?.[0]) {
+                        subirImagen(hotel.id, e.target.files[0], url => actualizarImagen(hotel.id, url))
+                      }
+                    }} />
                 </label>
 
                 {/* Nombre */}
@@ -173,7 +229,7 @@ export default function HotelesManager({ hoteles: hotelesIniciales }: { hoteles:
             placeholder="Nombre del hotel" className="input-admin"
             onKeyDown={e => { if (e.key === 'Enter') crear() }} autoFocus />
           <div className="flex gap-3">
-            <button onClick={() => { setShowNuevo(false); setNuevoNombre('') }}
+            <button onClick={() => { setShowNuevo(false); setNuevoNombre(''); setError('') }}
               className="flex-1 border border-gray-300 text-gray-600 font-semibold py-3 rounded-xl text-sm hover:bg-gray-50">
               Cancelar
             </button>
