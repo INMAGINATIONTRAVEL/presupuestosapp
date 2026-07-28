@@ -159,7 +159,7 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
                   </div>
                 )}
                 <p className="text-sm text-gray-500 mt-2">Señal: <b className="text-[#1C1C2E]">{formatPrecio(p.precio_senal)}</b></p>
-                {p.fecha_expiracion && (
+                {p.fecha_expiracion && p.estado !== 'confirmado' && (
                   <p className="text-xs text-orange-500 mt-2">
                     ⏰ Expira: {new Date(p.fecha_expiracion).toLocaleDateString('es-ES')}
                   </p>
