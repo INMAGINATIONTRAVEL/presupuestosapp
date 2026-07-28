@@ -216,7 +216,7 @@ export default function OfertaPage({ presupuesto: presupuestoInicial, variantes 
           </div>
           <p className="text-sm text-[#1C1C2E]">
             Reserva hoy con solo{' '}
-            <span className="font-bold text-[#E8445A]">{formatPrecio(presupuesto.precio_senal)}</span>.
+            <span className="font-bold text-[#E8445A]">{formatPrecio(senalTotal)}</span>.
             El resto, págalo a tu ritmo hasta 30 días antes de viajar.
           </p>
         </div>
