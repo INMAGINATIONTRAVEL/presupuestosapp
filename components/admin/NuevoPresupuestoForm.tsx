@@ -419,20 +419,58 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
           {/* Hotel principal */}
           <div className="sm:col-span-2">
             <label className="label-admin">Hotel / Crucero principal *</label>
-            <select value={hotelSelect} onChange={e => {
-              const val = e.target.value
-              setHotelSelect(val)
-              if (val !== '__manual__' && val !== '') {
-                const hCat = hotelesCatalogo.find(h => h.nombre === val)
-                if (hCat?.imagen_url) setHotelImagenUrl(hCat.imagen_url)
-              }
-            }} required className="input-admin">
-              <option value="">— Selecciona —</option>
-              <option value="__manual__">✏️ Escribir manualmente</option>
-              {hotelesCatalogo.filter(h => h.activo).map(h => (
-                <option key={h.id} value={h.nombre}>{h.nombre}</option>
-              ))}
-            </select>
+
+            {hotelesCatalogo.length === 0 ? (
+              <p className="text-sm text-amber-600 bg-amber-50 rounded-xl px-4 py-3 border border-amber-200">
+                No hay hoteles en el catálogo. Ve a <strong>🏨 Hoteles</strong> y pulsa "Importar lista".
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-1">
+                {hotelesCatalogo.filter(h => h.activo).map(h => {
+                  const sel = hotelSelect === h.nombre
+                  return (
+                    <button
+                      key={h.id}
+                      type="button"
+                      onClick={() => {
+                        setHotelSelect(h.nombre)
+                        if (h.imagen_url) setHotelImagenUrl(h.imagen_url)
+                      }}
+                      className={`flex flex-col rounded-xl border-2 overflow-hidden text-left transition-all ${
+                        sel ? 'border-[#E8445A] shadow-md' : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      {h.imagen_url ? (
+                        <img src={h.imagen_url} alt={h.nombre} className="w-full h-20 object-cover" />
+                      ) : (
+                        <div className="w-full h-20 bg-gray-100 flex items-center justify-center text-2xl">🏨</div>
+                      )}
+                      <div className={`px-2 py-1.5 ${sel ? 'bg-red-50' : 'bg-white'}`}>
+                        <p className={`text-xs font-semibold leading-tight ${sel ? 'text-[#E8445A]' : 'text-[#1C1C2E]'}`}>
+                          {h.nombre}
+                        </p>
+                      </div>
+                    </button>
+                  )
+                })}
+                <button
+                  type="button"
+                  onClick={() => { setHotelSelect('__manual__'); setHotelImagenUrl('') }}
+                  className={`flex flex-col items-center justify-center rounded-xl border-2 h-[calc(5rem+2.5rem)] transition-all ${
+                    hotelSelect === '__manual__' ? 'border-[#E8445A] bg-red-50' : 'border-dashed border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  <span className="text-xl">✏️</span>
+                  <span className={`text-xs font-semibold mt-1 ${hotelSelect === '__manual__' ? 'text-[#E8445A]' : 'text-gray-500'}`}>
+                    Escribir manualmente
+                  </span>
+                </button>
+              </div>
+            )}
+
+            {/* Campo de validación oculto */}
+            <input type="text" value={hotel} required readOnly className="sr-only" aria-hidden />
+
             {hotelSelect === '__manual__' && (
               <input
                 value={hotelManual}
@@ -445,7 +483,15 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
           </div>
 
           <div className="sm:col-span-2">
-            <label className="label-admin">Imagen hotel principal <span className="text-gray-400 font-normal">(opcional)</span></label>
+            <label className="label-admin">
+              Imagen hotel principal
+              {hotelSelect !== '__manual__' && hotelImagenUrl && (
+                <span className="text-gray-400 font-normal ml-1">(del catálogo — puedes cambiarla)</span>
+              )}
+              {(hotelSelect === '__manual__' || !hotelImagenUrl) && (
+                <span className="text-gray-400 font-normal ml-1">(opcional)</span>
+              )}
+            </label>
             <label className={`flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl px-3 py-3 cursor-pointer hover:border-[#E8445A] transition-colors text-sm text-gray-500 font-semibold ${subiendoHotel ? 'opacity-50' : ''}`}>
               {subiendoHotel ? '⏳ Subiendo...' : '📎 Subir foto del hotel'}
               <input type="file" accept="image/*" className="hidden" disabled={subiendoHotel}
