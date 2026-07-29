@@ -69,7 +69,7 @@ export default async function PresupuestoDetallePage({ params }: { params: Promi
         <div className="flex items-center gap-2 flex-wrap">
           {p.cliente_telefono && (
             <a
-              href={`https://wa.me/34${p.cliente_telefono.replace(/\s+/g, '')}?text=${encodeURIComponent(`Hola ${p.cliente_nombre.split(' ')[0]}, te escribo de Inmagination Travel sobre tu presupuesto #${p.numero} 😊`)}`}
+              href={`https://wa.me/34${p.cliente_telefono.replace(/\s+/g, '')}?text=${encodeURIComponent(`✨ ¡Hola, ${p.cliente_nombre.split(' ')[0]}! 💙\n\nTe escribo de InmaginationTravel para darte la bienvenida y decirte que ya tienes preparado tu presupuesto #${p.numero}. ✈️🌍\n\nEspero de corazón que te haga tanta ilusión como a nosotros prepararlo. Cada viaje es único, y nos encanta ayudar a convertir los sueños en recuerdos inolvidables.\n\nSi tienes cualquier duda, quieres hacer algún cambio o simplemente necesitas un consejo, estaré encantada de ayudarte. 😊\n\n¡Gracias por confiar en nosotras! Ojalá este sea el comienzo de una aventura muy especial. ✨`)}`}
               target="_blank" rel="noopener noreferrer"
               className="text-sm px-3 py-2 rounded-xl border border-green-300 text-green-700 hover:bg-green-50 transition-colors"
             >
