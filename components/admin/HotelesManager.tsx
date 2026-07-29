@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
 
 interface Hotel {
   id: string
@@ -37,15 +36,16 @@ export default function HotelesManager({ hoteles: hotelesIniciales }: { hoteles:
 
   async function subirImagen(hotelId: string, file: File, onUrl: (url: string) => void) {
     setSubiendoId(hotelId)
+    setError('')
     try {
-      const supabase = createClient()
-      const ext = file.name.split('.').pop()
-      const path = `hoteles-catalogo/${Date.now()}.${ext}`
-      const { data, error } = await supabase.storage.from('IMAGENES').upload(path, file, { upsert: true })
-      if (!error && data) {
-        const { data: urlData } = supabase.storage.from('IMAGENES').getPublicUrl(path)
-        onUrl(urlData.publicUrl)
-      }
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/admin/hoteles/upload', { method: 'POST', body: fd })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'Error al subir la imagen')
+      onUrl(json.url)
+    } catch (e: any) {
+      setError(e.message)
     } finally {
       setSubiendoId(null)
     }
