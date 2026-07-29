@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 interface Hotel {
   id: string
@@ -38,12 +39,15 @@ export default function HotelesManager({ hoteles: hotelesIniciales }: { hoteles:
     setSubiendoId(hotelId)
     setError('')
     try {
-      const fd = new FormData()
-      fd.append('file', file)
-      const res = await fetch('/api/admin/hoteles/upload', { method: 'POST', body: fd })
-      const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Error al subir la imagen')
-      onUrl(json.url)
+      const supabase = createClient()
+      const ext = file.name.split('.').pop()
+      const path = `hoteles-catalogo/${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('IMAGENES')
+        .upload(path, file, { upsert: true })
+      if (uploadError) throw new Error(uploadError.message)
+      const { data: urlData } = supabase.storage.from('IMAGENES').getPublicUrl(path)
+      onUrl(urlData.publicUrl)
     } catch (e: any) {
       setError(e.message)
     } finally {
