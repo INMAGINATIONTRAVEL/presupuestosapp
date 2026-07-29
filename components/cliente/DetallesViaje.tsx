@@ -49,7 +49,7 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
           </div>
           {!crucero && presupuesto.photopass && (
             <div className="bg-purple-50 rounded-xl px-4 py-2 inline-flex items-center gap-2">
-              <span className="text-purple-600 text-sm font-bold">📸 PHOTOPASS INCLUIDO</span>
+              <span className="text-purple-600 text-sm font-bold">📸 PHOTOPASS DE REGALO</span>
             </div>
           )}
           {presupuesto.incluye_traslados && (

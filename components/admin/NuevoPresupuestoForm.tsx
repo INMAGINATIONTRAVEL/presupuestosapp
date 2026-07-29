@@ -53,11 +53,13 @@ interface Props {
 const PLANES_COMIDAS = [
   'Solo alojamiento',
   'Desayuno',
-  'Media pensión',
-  'Media pensión plus',
-  'Pensión completa',
-  'Estándar',
-  'Pensión completa plus',
+  'Media Pensión',
+  'Media Pensión Plus',
+  'Media Pensión Premium',
+  'Pensión Completa Standard',
+  'Pensión Completa Plus',
+  'Pensión Completa Extra Plus',
+  'Pensión Completa Premium',
 ]
 
 export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, editando }: Props) {
@@ -119,6 +121,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
   // Precios
   const [precioTotal, setPrecioTotal] = useState(p ? String(p.precio_total) : '')
   const [precioSenal, setPrecioSenal] = useState(p ? String(p.precio_senal) : '')
+  const [notaPrecio, setNotaPrecio] = useState(p?.nota_precio || '')
   const [fechaExpiracion, setFechaExpiracion] = useState(p?.fecha_expiracion || '')
   const [notasInternas, setNotasInternas] = useState(p?.notas_internas || '')
 
@@ -291,6 +294,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
       habitaciones,
       precio_total: parseFloat(precioTotal),
       precio_senal: parseFloat(precioSenal),
+      nota_precio: notaPrecio || null,
       estado,
       fecha_expiracion: fechaExpiracion || null,
       notas_internas: notasInternas || null,
@@ -705,12 +709,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
                 className="input-admin"
               >
                 <option value="">Régimen de comidas (opcional)</option>
-                <option>Solo alojamiento</option>
-                <option>Desayuno</option>
-                <option>Media pensión</option>
-                <option>Media pensión plus</option>
-                <option>Pensión completa</option>
-                <option>Pensión completa plus</option>
+                {PLANES_COMIDAS.map(p => <option key={p}>{p}</option>)}
               </select>
               <label className={`flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl px-3 py-2 cursor-pointer hover:border-[#E8445A] transition-colors text-sm text-gray-500 font-semibold ${subiendoHotelAdicional === idx ? 'opacity-50' : ''}`}>
                 {subiendoHotelAdicional === idx ? '⏳ Subiendo...' : '📎 Subir foto'}
@@ -801,6 +800,12 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
             <label className="label-admin">Oferta válida hasta</label>
             <input type="date" value={fechaExpiracion} onChange={e => setFechaExpiracion(e.target.value)}
               className="input-admin" />
+          </div>
+          <div className="col-span-2">
+            <label className="label-admin">Nota sobre el precio <span className="text-gray-400 font-normal">(visible para el cliente)</span></label>
+            <textarea value={notaPrecio} onChange={e => setNotaPrecio(e.target.value)}
+              rows={2} placeholder="Ej: Precio calculado para 2 adultos y 1 niño menor de 7 años. Consulta disponibilidad antes de confirmar."
+              className="input-admin resize-none" />
           </div>
         </div>
       </section>

@@ -206,6 +206,11 @@ export default function OfertaPage({ presupuesto: presupuestoInicial, variantes 
           <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Valor total</p>
           <p className="font-playfair text-4xl font-bold text-[#E8445A]">{formatPrecio(totalFinal)}</p>
           <p className="text-xs text-gray-400 mt-1">Impuestos y tasas incluidos</p>
+          {presupuesto.nota_precio && (
+            <p className="text-xs text-gray-500 mt-2 leading-relaxed border-t border-gray-100 pt-2">
+              {presupuesto.nota_precio}
+            </p>
+          )}
         </div>
 
         <button

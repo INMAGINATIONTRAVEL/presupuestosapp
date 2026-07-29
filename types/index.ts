@@ -55,6 +55,7 @@ export interface Presupuesto {
   habitaciones: Habitacion[]
   precio_total: number
   precio_senal: number
+  nota_precio: string | null
   estado: EstadoPresupuesto
   fecha_expiracion: string | null
   fecha_visto: string | null
