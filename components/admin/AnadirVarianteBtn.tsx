@@ -13,10 +13,10 @@ export default function AnadirVarianteBtn({
   const [estado, setEstado] = useState<'idle' | 'cargando' | 'error'>('idle')
   const router = useRouter()
 
-  const letras = ['A', 'B', 'C']
+  const letras = ['A', 'B', 'C', 'D', 'E', 'F']
   const siguienteLetra = letras.find(l => !variantesExistentes.includes(l))
 
-  if (!siguienteLetra) return null // Ya hay A, B y C
+  if (!siguienteLetra) return null // Ya hay A, B, C, D, E y F
 
   async function handleAnadir() {
     setEstado('cargando')

@@ -112,11 +112,15 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
   const vuelosObj = p?.detalles_vuelos && typeof p.detalles_vuelos === 'object' && 'ida' in p.detalles_vuelos
     ? p.detalles_vuelos as VueloEstructurado
     : null
-  const [vueloIda, setVueloIda] = useState(vuelosObj?.ida || { origen: '', fecha: '', hora: '', hora_llegada: '', destino: '' })
-  const [vueloVuelta, setVueloVuelta] = useState(vuelosObj?.vuelta || { origen: '', fecha: '', hora: '', hora_llegada: '', destino: '' })
-  const [vueloMochila, setVueloMochila] = useState((vuelosObj as any)?.incluye_mochila ?? false)
-  const [vueloMaletaCabina, setVueloMaletaCabina] = useState((vuelosObj as any)?.incluye_maleta_cabina ?? false)
-  const [vueloObservaciones, setVueloObservaciones] = useState((vuelosObj as any)?.observaciones || '')
+  const vueloVacio = { origen: '', fecha: '', hora: '', hora_llegada: '', destino: '' }
+  const [vueloIda, setVueloIda] = useState(vuelosObj?.ida || vueloVacio)
+  const [vueloVuelta, setVueloVuelta] = useState(vuelosObj?.vuelta || vueloVacio)
+  const [vuelosAdicionales, setVuelosAdicionales] = useState<{ label: string; origen: string; fecha: string; hora: string; hora_llegada: string; destino: string }[]>(
+    vuelosObj?.vuelos_adicionales?.map(v => ({ label: v.label || '', origen: v.origen, fecha: v.fecha, hora: v.hora || '', hora_llegada: v.hora_llegada || '', destino: v.destino })) || []
+  )
+  const [vueloMochila, setVueloMochila] = useState(vuelosObj?.incluye_mochila ?? false)
+  const [vueloMaletaCabina, setVueloMaletaCabina] = useState(vuelosObj?.incluye_maleta_cabina ?? false)
+  const [vueloObservaciones, setVueloObservaciones] = useState(vuelosObj?.observaciones || '')
 
   // Precios
   const [precioTotal, setPrecioTotal] = useState(p ? String(p.precio_total) : '')
@@ -265,14 +269,21 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
     setGuardando(true)
 
     const detalles_vuelos = incluyeVuelos
-      ? { ida: vueloIda, vuelta: vueloVuelta, incluye_mochila: vueloMochila, incluye_maleta_cabina: vueloMaletaCabina, observaciones: vueloObservaciones || null }
+      ? {
+          ida: vueloIda,
+          vuelta: vueloVuelta,
+          vuelos_adicionales: vuelosAdicionales.length > 0 ? vuelosAdicionales : undefined,
+          incluye_mochila: vueloMochila,
+          incluye_maleta_cabina: vueloMaletaCabina,
+          observaciones: vueloObservaciones || null,
+        }
       : null
 
     const hotelesValidos = hotelesAdicionales.filter(h => h.nombre.trim())
 
     const extrasPersonalizadosValidos = extrasPersonalizados
       .filter(e => e.nombre.trim())
-      .map(e => ({ nombre: e.nombre, descripcion: e.descripcion || null, imagen_url: e.imagen_url || null, precio: parseFloat(e.precio) || 0 }))
+      .map(e => ({ nombre: e.nombre, descripcion: e.descripcion || null, imagen_url: e.imagen_url || null, precio: parseFloat(e.precio) ?? 0 }))
 
     const datos = {
       cliente_nombre: clienteNombre.toUpperCase(),
@@ -320,7 +331,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
             extrasIncluidos.map(e => ({
               presupuesto_id: editando.id,
               extra_id: e.extra.id,
-              precio_personalizado: parseFloat(e.precio) || e.extra.precio_referencia,
+              precio_personalizado: !isNaN(parseFloat(e.precio)) ? parseFloat(e.precio) : e.extra.precio_referencia,
             }))
           )
         }
@@ -351,7 +362,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
             extrasIncluidos.map(e => ({
               presupuesto_id: presupuesto.id,
               extra_id: e.extra.id,
-              precio_personalizado: parseFloat(e.precio) || e.extra.precio_referencia,
+              precio_personalizado: !isNaN(parseFloat(e.precio)) ? parseFloat(e.precio) : e.extra.precio_referencia,
             }))
           )
         }
@@ -626,6 +637,51 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
                   </div>
                 </div>
               </div>
+
+              {/* Vuelos adicionales */}
+              {vuelosAdicionales.map((v, idx) => (
+                <div key={idx} className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <input
+                      value={v.label}
+                      onChange={e => setVuelosAdicionales(prev => prev.map((x, i) => i === idx ? { ...x, label: e.target.value } : x))}
+                      placeholder={`Ej: Vuelo ${idx + 3} (conexión)`}
+                      className="input-admin text-xs py-1 w-48"
+                    />
+                    <button type="button" onClick={() => setVuelosAdicionales(prev => prev.filter((_, i) => i !== idx))}
+                      className="text-red-400 text-xs hover:text-red-600">✕ Eliminar</button>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    {[
+                      { label: 'Origen', key: 'origen', type: 'text', placeholder: 'CDG', upper: true },
+                      { label: 'Fecha', key: 'fecha', type: 'date', placeholder: '' },
+                      { label: 'Hora salida', key: 'hora', type: 'time', placeholder: '' },
+                      { label: 'Hora llegada', key: 'hora_llegada', type: 'time', placeholder: '' },
+                      { label: 'Destino', key: 'destino', type: 'text', placeholder: 'MAD', upper: true },
+                    ].map(field => (
+                      <div key={field.key}>
+                        <label className="label-admin text-xs">{field.label}</label>
+                        <input
+                          type={field.type}
+                          value={(v as any)[field.key] || ''}
+                          onChange={e => setVuelosAdicionales(prev => prev.map((x, i) => i === idx ? { ...x, [field.key]: field.upper ? e.target.value.toUpperCase() : e.target.value } : x))}
+                          placeholder={field.placeholder}
+                          className={`input-admin ${field.upper ? 'text-center font-bold uppercase' : ''}`}
+                          maxLength={field.upper ? 4 : undefined}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {vuelosAdicionales.length < 4 && (
+                <button type="button"
+                  onClick={() => setVuelosAdicionales(prev => [...prev, { label: '', origen: '', fecha: '', hora: '', hora_llegada: '', destino: '' }])}
+                  className="w-full border-2 border-dashed border-blue-200 hover:border-blue-400 text-blue-500 hover:text-blue-700 font-semibold py-2 rounded-xl text-sm transition-colors">
+                  + Añadir tramo de vuelo
+                </button>
+              )}
 
               {/* Equipaje y observaciones vuelos */}
               <div className="grid grid-cols-2 gap-3 mt-2">

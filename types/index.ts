@@ -6,9 +6,22 @@ export interface Habitacion {
   ninos: { edad: number }[]
 }
 
+export interface VueloTrayecto {
+  label?: string
+  origen: string
+  fecha: string
+  hora?: string
+  hora_llegada?: string
+  destino: string
+}
+
 export interface VueloEstructurado {
-  ida: { origen: string; fecha: string; hora?: string; hora_llegada?: string; destino: string }
-  vuelta: { origen: string; fecha: string; hora?: string; hora_llegada?: string; destino: string }
+  ida: VueloTrayecto
+  vuelta: VueloTrayecto
+  vuelos_adicionales?: VueloTrayecto[]
+  incluye_mochila?: boolean
+  incluye_maleta_cabina?: boolean
+  observaciones?: string
 }
 
 export interface HotelAdicional {
