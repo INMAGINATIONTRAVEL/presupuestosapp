@@ -69,6 +69,7 @@ export interface Presupuesto {
   precio_total: number
   precio_senal: number
   nota_precio: string | null
+  desayuno_opcional: { tipo: 'parque' | 'hotel'; precio: number | null } | null
   estado: EstadoPresupuesto
   fecha_expiracion: string | null
   fecha_visto: string | null

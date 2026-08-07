@@ -158,6 +158,32 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
           </div>
         )}
 
+        {/* Desayuno opcional */}
+        {presupuesto.desayuno_opcional && (
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="flex items-start gap-4">
+              <div className="w-16 h-16 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <span className="text-2xl">{presupuesto.desayuno_opcional.tipo === 'parque' ? '🌅' : '🏨'}</span>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Desayuno Opcional</p>
+                <p className="font-bold text-[#1C1C2E]">
+                  {presupuesto.desayuno_opcional.tipo === 'parque' ? 'Desayuno en el parque' : 'Desayuno en el hotel'}
+                </p>
+                {presupuesto.desayuno_opcional.precio != null ? (
+                  <p className="text-sm font-bold text-[#F5A623] mt-1">
+                    +{new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(presupuesto.desayuno_opcional.precio)} / persona
+                  </p>
+                ) : (
+                  <div className="mt-2">
+                    <span className="bg-green-50 text-green-600 text-xs font-bold px-3 py-1 rounded-full">✓ INCLUIDO</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Vuelos estructurados */}
         {presupuesto.incluye_vuelos && (
           <div className="mt-4 pt-4 border-t border-gray-100">

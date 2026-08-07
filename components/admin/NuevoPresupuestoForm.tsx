@@ -52,6 +52,10 @@ interface Props {
 
 const PLANES_COMIDAS = [
   'Solo alojamiento',
+  'Essential',
+  'Extra',
+  'Signature',
+  'Royal',
   'Desayuno',
   'Media Pensión',
   'Media Pensión Plus',
@@ -60,6 +64,8 @@ const PLANES_COMIDAS = [
   'Pensión Completa Plus',
   'Pensión Completa Extra Plus',
   'Pensión Completa Premium',
+  'Pensión Completa + Paquete de bebidas',
+  'Todo incluido',
 ]
 
 export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, editando }: Props) {
@@ -94,6 +100,8 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
   const [observaciones, setObservaciones] = useState(p?.observaciones || '')
   const [photopass, setPhotopass] = useState(p?.photopass || false)
   const [incluyeTraslados, setIncluyeTraslados] = useState((p as any)?.incluye_traslados || false)
+  const [desayunoTipo, setDesayunoTipo] = useState<'' | 'parque' | 'hotel'>(p?.desayuno_opcional?.tipo || '')
+  const [desayunoPrecio, setDesayunoPrecio] = useState(p?.desayuno_opcional?.precio != null ? String(p.desayuno_opcional.precio) : '')
 
   // Hoteles adicionales
   const [hotelesAdicionales, setHotelesAdicionales] = useState<HotelAdicionalForm[]>(
@@ -201,7 +209,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
 
   // --- Extras personalizados ---
   function addExtraPersonalizado() {
-    if (extrasPersonalizados.length >= 5) return
+    if (extrasPersonalizados.length >= 10) return
     setExtrasPersonalizados(prev => [...prev, { nombre: '', descripcion: '', imagen_url: '', precio: '0', subiendo: false }])
   }
   function removeExtraPersonalizado(index: number) {
@@ -306,6 +314,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
       precio_total: parseFloat(precioTotal),
       precio_senal: parseFloat(precioSenal),
       nota_precio: notaPrecio || null,
+      desayuno_opcional: desayunoTipo ? { tipo: desayunoTipo, precio: desayunoPrecio !== '' ? parseFloat(desayunoPrecio) : null } : null,
       estado,
       fecha_expiracion: fechaExpiracion || null,
       notas_internas: notasInternas || null,
@@ -525,6 +534,33 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
               <option value="">— Sin seleccionar —</option>
               {PLANES_COMIDAS.map(p => <option key={p} value={p}>{p}</option>)}
             </select>
+          </div>
+
+          {/* Desayuno opcional */}
+          <div>
+            <label className="label-admin">Desayuno opcional</label>
+            <select
+              value={desayunoTipo}
+              onChange={e => setDesayunoTipo(e.target.value as '' | 'parque' | 'hotel')}
+              className="input-admin"
+            >
+              <option value="">— Sin desayuno opcional —</option>
+              <option value="parque">🌅 Desayuno en el parque</option>
+              <option value="hotel">🏨 Desayuno en el hotel</option>
+            </select>
+          </div>
+          <div>
+            <label className="label-admin">Precio desayuno (€)</label>
+            <input
+              type="number"
+              min={0}
+              step={0.01}
+              value={desayunoPrecio}
+              onChange={e => setDesayunoPrecio(e.target.value)}
+              placeholder={desayunoTipo ? 'Vacío = incluido en precio' : '—'}
+              className="input-admin"
+              disabled={!desayunoTipo}
+            />
           </div>
 
           {/* Photopass — solo para no cruceros */}
@@ -901,7 +937,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
       <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-1">
           <h2 className="font-playfair text-lg font-bold text-[#1C1C2E]">🎨 Extras personalizados</h2>
-          {extrasPersonalizados.length < 5 && (
+          {extrasPersonalizados.length < 10 && (
             <button type="button" onClick={addExtraPersonalizado}
               className="text-sm text-[#E8445A] font-semibold hover:underline">
               + Añadir
