@@ -68,10 +68,13 @@ export async function POST(req: NextRequest) {
       .eq('presupuesto_id', presupuesto_id)
       .in('id', extras_seleccionados ?? [])
 
-    const extrasSeleccionados = (extrasDB ?? []).map((e: any) => ({
+    const extrasItems = (extrasDB ?? []).map((e: any) => ({
       nombre: e.extra?.nombre ?? '',
       precio: formatPrecio(e.precio_personalizado),
+      precioNum: e.precio_personalizado as number,
     }))
+    const totalExtras = extrasItems.reduce((acc, e) => acc + e.precioNum, 0)
+    const totalConExtras = presupuesto.precio_total + totalExtras
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
@@ -87,8 +90,9 @@ export async function POST(req: NextRequest) {
         hotel: presupuesto.hotel,
         fechaInicio: presupuesto.fecha_inicio,
         fechaFin: presupuesto.fecha_fin,
-        precioTotal: formatPrecio(presupuesto.precio_total),
-        extrasSeleccionados,
+        precioBase: formatPrecio(presupuesto.precio_total),
+        precioTotal: formatPrecio(totalConExtras),
+        extrasSeleccionados: extrasItems,
         pagoFlexible: pago_flexible ?? false,
         notasCliente: notas_cliente,
         telefonoReserva: telefono_reserva,

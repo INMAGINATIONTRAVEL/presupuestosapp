@@ -6,6 +6,7 @@ export function emailAgenteHTML({
   hotel,
   fechaInicio,
   fechaFin,
+  precioBase,
   precioTotal,
   extrasSeleccionados,
   pagoFlexible,
@@ -22,6 +23,7 @@ export function emailAgenteHTML({
   hotel: string
   fechaInicio: string
   fechaFin: string
+  precioBase: string
   precioTotal: string
   extrasSeleccionados: { nombre: string; precio: string }[]
   pagoFlexible: boolean
@@ -133,8 +135,17 @@ export function emailAgenteHTML({
                   <td style="padding:6px 0;font-size:14px;color:#1C1C2E;">${new Date(fechaFin).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
                 </tr>
                 <tr>
-                  <td style="padding:6px 0;font-size:14px;color:#666;">Precio total</td>
-                  <td style="padding:6px 0;font-size:18px;color:#E8445A;font-weight:700;">${precioTotal}</td>
+                  <td style="padding:6px 0;font-size:14px;color:#666;">Precio base</td>
+                  <td style="padding:6px 0;font-size:14px;color:#1C1C2E;font-weight:700;">${precioBase}</td>
+                </tr>
+                ${extrasSeleccionados.map(e => `
+                <tr>
+                  <td style="padding:4px 0;font-size:13px;color:#666;">+ ${e.nombre}</td>
+                  <td style="padding:4px 0;font-size:13px;color:#F5A623;font-weight:700;text-align:right;">${e.precio}</td>
+                </tr>`).join('')}
+                <tr>
+                  <td style="padding:10px 0 6px;font-size:15px;color:#1C1C2E;font-weight:700;border-top:2px solid #E8445A;">TOTAL</td>
+                  <td style="padding:10px 0 6px;font-size:22px;color:#E8445A;font-weight:700;text-align:right;border-top:2px solid #E8445A;">${precioTotal}</td>
                 </tr>
                 <tr>
                   <td style="padding:6px 0;font-size:14px;color:#666;">Pago flexible</td>
@@ -142,16 +153,6 @@ export function emailAgenteHTML({
                 </tr>
               </table>
             </div>
-          </td>
-        </tr>
-
-        <!-- EXTRAS -->
-        <tr>
-          <td style="padding:24px 40px 8px;">
-            <p style="margin:0 0 14px;font-size:11px;font-weight:700;color:#F5A623;text-transform:uppercase;letter-spacing:2px;">Extras seleccionados</p>
-            <table width="100%" cellpadding="0" cellspacing="0">
-              ${extrasHTML}
-            </table>
           </td>
         </tr>
 
