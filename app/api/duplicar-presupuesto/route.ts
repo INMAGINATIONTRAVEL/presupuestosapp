@@ -64,6 +64,8 @@ export async function POST(req: NextRequest) {
       descripcion_oferta: original.descripcion_oferta,
       observaciones: original.observaciones,
       photopass: original.photopass ?? false,
+      extras_personalizados: original.extras_personalizados,
+      hoteles_adicionales: original.hoteles_adicionales,
       habitaciones: original.habitaciones,
       precio_total: original.precio_total,
       precio_senal: original.precio_senal,

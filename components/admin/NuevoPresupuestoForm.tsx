@@ -890,7 +890,7 @@ export default function NuevoPresupuestoForm({ extrasCatalogo, hotelesCatalogo, 
           </div>
           <div>
             <label className="label-admin">Oferta válida hasta</label>
-            <input type="date" value={fechaExpiracion} onChange={e => setFechaExpiracion(e.target.value)}
+            <input type="datetime-local" value={fechaExpiracion} onChange={e => setFechaExpiracion(e.target.value)}
               className="input-admin" />
           </div>
           <div className="col-span-2">

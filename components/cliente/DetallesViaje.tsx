@@ -26,7 +26,7 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
             className="w-full h-full object-cover"
           />
           <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold text-[#1C1C2E] flex items-center gap-1">
-            {crucero ? '🚢 Crucero' : '🏨 Hotel + Entradas'}
+            {crucero ? '🚢 Crucero' : '🏨 Hotel'}
           </div>
         </div>
       )}
@@ -39,7 +39,6 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
         {presupuesto.tipo_habitacion && (
           <p className="text-sm text-gray-600 mb-4">
             <span className="font-semibold">{presupuesto.tipo_habitacion}</span>
-            {!crucero && '. Incluye entradas a parques y tasas.'}
           </p>
         )}
 
