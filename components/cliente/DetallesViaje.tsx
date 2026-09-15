@@ -171,7 +171,7 @@ export default function DetallesViaje({ presupuesto, dias, noches }: Props) {
                 </p>
                 {presupuesto.desayuno_opcional.precio != null ? (
                   <p className="text-sm font-bold text-[#F5A623] mt-1">
-                    +{new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(presupuesto.desayuno_opcional.precio)} / persona
+                    +{new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(presupuesto.desayuno_opcional.precio)}
                   </p>
                 ) : (
                   <div className="mt-2">

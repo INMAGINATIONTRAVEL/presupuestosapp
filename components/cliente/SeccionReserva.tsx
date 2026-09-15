@@ -304,12 +304,27 @@ export default function SeccionReserva({ presupuesto, extrasSeleccionados, total
             <div className="pt-3 border-t border-gray-100">
               {(() => {
                 const extrasElegidos = presupuesto.extras.filter(e => extrasSeleccionados.has(e.id))
-                return extrasElegidos.length > 0 ? (
+                const personalizados = (presupuesto.extras_personalizados ?? []).filter(e => e.precio !== 0)
+                const desayuno = presupuesto.desayuno_opcional?.precio ? presupuesto.desayuno_opcional : null
+                const hayLineas = extrasElegidos.length > 0 || personalizados.length > 0 || desayuno
+                return hayLineas ? (
                   <div className="space-y-1 mb-3">
                     <div className="flex justify-between text-sm text-gray-500">
                       <span>Viaje base</span>
                       <span>{formatPrecio(presupuesto.precio_total)}</span>
                     </div>
+                    {personalizados.map((e, i) => (
+                      <div key={i} className="flex justify-between text-sm text-gray-600">
+                        <span>+ {e.nombre}</span>
+                        <span>{formatPrecio(e.precio)}</span>
+                      </div>
+                    ))}
+                    {desayuno && (
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>+ Desayuno {desayuno.tipo === 'parque' ? 'en el parque' : 'en el hotel'}</span>
+                        <span>{formatPrecio(desayuno.precio!)}</span>
+                      </div>
+                    )}
                     {extrasElegidos.map(e => (
                       <div key={e.id} className="flex justify-between text-sm text-gray-600">
                         <span>+ {e.extra?.nombre ?? 'Extra'}</span>

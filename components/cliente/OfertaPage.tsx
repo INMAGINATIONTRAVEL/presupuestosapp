@@ -25,7 +25,9 @@ export default function OfertaPage({ presupuesto: presupuestoInicial, variantes 
 
   const extrasElegidos = presupuesto.extras.filter(e => extrasSeleccionados.has(e.id))
   const totalExtras = extrasElegidos.reduce((acc, e) => acc + e.precio_personalizado, 0)
-  const totalFinal = presupuesto.precio_total + totalExtras
+  const totalPersonalizados = (presupuesto.extras_personalizados ?? []).reduce((acc, e) => acc + (e.precio ?? 0), 0)
+  const totalDesayuno = presupuesto.desayuno_opcional?.precio ?? 0
+  const totalFinal = presupuesto.precio_total + totalExtras + totalPersonalizados + totalDesayuno
 
   const totalSegurosSeleccionados = extrasElegidos
     .filter(e => e.extra?.es_seguro)

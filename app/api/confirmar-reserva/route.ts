@@ -73,8 +73,18 @@ export async function POST(req: NextRequest) {
       precio: formatPrecio(e.precio_personalizado),
       precioNum: e.precio_personalizado as number,
     }))
-    const totalExtras = extrasItems.reduce((acc, e) => acc + e.precioNum, 0)
-    const totalConExtras = presupuesto.precio_total + totalExtras
+
+    const personalizados = ((presupuesto.extras_personalizados ?? []) as any[])
+      .filter(e => e.precio !== 0)
+      .map(e => ({ nombre: e.nombre, precio: formatPrecio(e.precio), precioNum: e.precio as number }))
+
+    const desayuno = presupuesto.desayuno_opcional as any
+    const desayunoItem = desayuno?.precio
+      ? [{ nombre: `Desayuno ${desayuno.tipo === 'parque' ? 'en el parque' : 'en el hotel'}`, precio: formatPrecio(desayuno.precio), precioNum: desayuno.precio as number }]
+      : []
+
+    const todosExtras = [...personalizados, ...desayunoItem, ...extrasItems]
+    const totalConExtras = presupuesto.precio_total + todosExtras.reduce((acc, e) => acc + e.precioNum, 0)
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
@@ -92,7 +102,7 @@ export async function POST(req: NextRequest) {
         fechaFin: presupuesto.fecha_fin,
         precioBase: formatPrecio(presupuesto.precio_total),
         precioTotal: formatPrecio(totalConExtras),
-        extrasSeleccionados: extrasItems,
+        extrasSeleccionados: todosExtras,
         pagoFlexible: pago_flexible ?? false,
         notasCliente: notas_cliente,
         telefonoReserva: telefono_reserva,
