@@ -15,6 +15,10 @@ export async function GET(req: NextRequest) {
 
   if (!p) return NextResponse.json({ error: 'No encontrado' }, { status: 404 })
 
+  if (p.estado === 'enviado') {
+    await supabase.from('presupuestos').update({ estado: 'visto' }).eq('id', id)
+  }
+
   const { data: extras } = await supabase
     .from('presupuesto_extras')
     .select('*, extra:extras_catalogo(*)')
